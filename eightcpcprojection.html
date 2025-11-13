@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8th CPC Projection Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .main-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 5px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            color: white;
+        }
+        
+        .main-header h1 {
+            margin-bottom: 2px;
+            font-size: 2.1rem; /* Reduced by 4 points */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .main-header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            width: 100%;
+            padding: 0 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            align-items: end;
+        }
+        
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2E7D32;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .factor-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .factor-dropdown {
+            flex: 2;
+        }
+        
+        .manual-input {
+            flex: 1;
+        }
+        
+        .calculate-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: fit-content;
+            box-sizing: border-box;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #8E44AD, #9B59B6);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .result-card .card-title {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid white;
+        }
+        
+        .result-values {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .result-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .result-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .result-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .financial-impact {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+        }
+        
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .impact-item {
+            text-align: center;
+        }
+        
+        .impact-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .positive {
+            color: #2ECC71;
+        }
+        
+        .negative {
+            color: #E74C3C;
+        }
+        
+        .neutral {
+            color: #F1C40F;
+        }
+        
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .tables-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .input-row > div {
+                width: 100%;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card-title {
+            color: #2E7D32;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4CAF50;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        th {
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #e8f5e9;
+        }
+        
+        .highlight {
+            background-color: #FFEB3B !important;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .info-container {
+            display: flex;
+            gap: 20px;
+            margin: 15px 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-container {
+                flex-direction: column;
+            }
+        }
+        
+        .info-box {
+            flex: 1;
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .disclaimer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+            margin: 0 5px 30px;
+        }
+        
+        .creator {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        /* Custom number input styles */
+        .number-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .number-input-container input[type="number"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+        }
+        
+        .number-input-container input[type="number"]::-webkit-inner-spin-button,
+        .number-input-container input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .number-input-arrows {
+            display: flex;
+            flex-direction: column;
+            margin-left: 5px;
+        }
+        
+        .arrow-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+        
+        .arrow-btn:hover {
+            background: #45a049;
+        }
+        
+        .arrow-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .arrow-btn.up {
+            border-bottom: 1px solid #3d8b40;
+        }
+        
+        /* Validation error styling */
+        .error {
+            border-color: #f44336 !important;
+            box-shadow: 0 0 5px rgba(244, 67, 54, 0.5) !important;
+        }
+        
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1>8th CPC Projection Calculator</h1>
+        <p class="subtitle">Project your 8th Pay Commission pay based on 7th CPC basic pay</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="basicPay">7th CPC Basic Pay (₹)</label>
+                    <div class="number-input-container">
+                        <input type="number" id="basicPay" placeholder="Enter basic pay" min="18000" max="250000">
+                        <div class="number-input-arrows">
+                            <button class="arrow-btn up" id="incrementBtn">▲</button>
+                            <button class="arrow-btn down" id="decrementBtn">▼</button>
+                        </div>
+                    </div>
+                    <div class="error-message" id="basicPayError">Basic pay must be between ₹18,000 and ₹2,50,000</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="multiplicationFactor">Multiplication Factor</label>
+                    <div class="factor-controls">
+                        <div class="factor-dropdown">
+                            <select id="multiplicationFactor">
+                            <option value="manual">Enter Manually</option>    
+                            <option value="1.8">1.80</option>
+                            <option value="1.81">1.81</option>
+                            <option value="1.82" selected>1.82</option>
+                            <option value="1.83">1.83</option>
+                            <option value="1.84">1.84</option>
+                            <option value="1.85">1.85</option>
+                            <option value="1.86">1.86</option>
+                            <option value="1.87">1.87</option>
+                            <option value="1.88">1.88</option>
+                            <option value="1.89">1.89</option>
+                            <option value="1.9">1.90</option>
+                            <option value="1.91">1.91</option>
+                            <option value="1.92">1.92</option>
+                            <option value="1.93">1.93</option>
+                            <option value="1.94">1.94</option>
+                            <option value="1.95">1.95</option>
+                            <option value="2.0">2.00</option>
+                            <option value="2.1">2.10</option>
+                            <option value="2.2">2.20</option>
+                            <option value="2.3">2.30</option>
+                            <option value="2.4">2.40</option>
+                            <option value="2.5">2.50</option>
+                            <option value="2.57">2.57 (7th CPC)</option>
+                            
+                        </select>
+                        </div>
+                        <div class="manual-input">
+                            <input type="number" id="manualFactor" placeholder="Manual" min="0.1" max="10.0" step="0.01" value="1.82" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>&nbsp;</label>
+                    <button class="calculate-btn" onclick="calculateProjectedPay()">
+                        Calculate
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card">
+            <h2 class="card-title">Projected Results</h2>
+            
+            <div class="result-values">
+                <div class="result-item">
+                    <div class="result-value" id="resultValue">₹0</div>
+                    <div class="result-label">Projected Pay</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="multiplicationFactorValue">0.00</div>
+                    <div class="result-label">Factor</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="increasePercentage">0%</div>
+                    <div class="result-label">Increase in Basic Pay</div>
+                </div>
+            </div>
+            
+            <div class="financial-impact">
+                <h3>Financial Impact</h3>
+                <div class="impact-grid">
+                    <div class="impact-item">
+                        <div class="impact-value" id="currentTotalPay">₹0</div>
+                        <div class="result-label">Current (BP + 58% DA)</div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-value" id="projectedTotalPay">₹0</div>
+                        <div class="result-label">Projected (BP + 0% DA)</div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-value" id="netDifference">₹0</div>
+                        <div class="result-label">Net Difference</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-container">
+            <div class="card">
+                <h2 class="card-title">Projection Matrix</h2>
+                <div class="table-container">
+                    <table id="projectionMatrixTable">
+                        <!-- Table will be populated by JavaScript -->
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Allowance Projections</h2>
+                <div class="table-container">
+                    <table id="allowancesTable">
+                        <!-- Table will be populated by JavaScript -->
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-container">
+            <div class="info-box">
+                <p><strong>Formula:</strong> Projected Pay = Basic Pay × Multiplication Factor (rounded to nearest ₹100)</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>Reference:</strong> 7th CPC Factor: 2.57 | Current DA: 58% | DA resets to 0% with 8th CPC</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <p>Disclaimer: This is a projection calculator for informational purposes only. </p>
+    </div>
+
+    <script>
+        // Constants
+        const CURRENT_DA_PERCENTAGE = 58;
+        const SEVENTH_CPC_EFFECTIVE_INCREASE = (2.57 / 2.25) - 1;
+        const TRANSPORT_ALLOWANCES = [900, 1350, 1800, 3600, 7200];
+        const HRA_RATES = {
+            'X City': [24, 27, 30],
+            'Y City': [16, 18, 20],
+            'Z City': [8, 9, 10]
+        };
+
+        const SAMPLE_PAYS = [18000, 19900, 21700, 25500, 29200, 35400, 44900, 47600, 53100, 56100, 67700, 78800, 118500, 131100, 144200, 182200, 205400, 225000, 250000];
+        const MIN_BASIC_PAY = 18000;
+        const MAX_BASIC_PAY = 250000;
+
+        const basicPayInput = document.getElementById('basicPay');
+        const multiplicationFactorSelect = document.getElementById('multiplicationFactor');
+        const manualFactorInput = document.getElementById('manualFactor');
+        const resultValue = document.getElementById('resultValue');
+        const multiplicationFactorValue = document.getElementById('multiplicationFactorValue');
+        const increasePercentage = document.getElementById('increasePercentage');
+        const currentTotalPay = document.getElementById('currentTotalPay');
+        const projectedTotalPay = document.getElementById('projectedTotalPay');
+        const netDifference = document.getElementById('netDifference');
+        const projectionMatrixTable = document.getElementById('projectionMatrixTable');
+        const allowancesTable = document.getElementById('allowancesTable');
+        const incrementBtn = document.getElementById('incrementBtn');
+        const decrementBtn = document.getElementById('decrementBtn');
+        const basicPayError = document.getElementById('basicPayError');
+
+        multiplicationFactorSelect.addEventListener('change', function() {
+            if (this.value === 'manual') {
+                manualFactorInput.style.display = 'block';
+            } else {
+                manualFactorInput.style.display = 'none';
+            }
+        });
+
+        // Initialize with the first sample pay
+        window.addEventListener('load', () => {
+            basicPayInput.value = 47600;
+            updateArrowButtons();
+            initializeProjectionMatrixTable();
+            initializeAllowancesTable();
+            calculateProjectedPay();
+        });
+
+        // Arrow button functionality
+        incrementBtn.addEventListener('click', () => {
+            const currentValue = parseInt(basicPayInput.value) || 0;
+            const nextHigher = SAMPLE_PAYS.find(pay => pay > currentValue);
+            if (nextHigher) {
+                basicPayInput.value = nextHigher;
+                validateBasicPay();
+                updateArrowButtons();
+                calculateProjectedPay();
+            }
+        });
+
+        decrementBtn.addEventListener('click', () => {
+            const currentValue = parseInt(basicPayInput.value) || 0;
+            const nextLower = [...SAMPLE_PAYS].reverse().find(pay => pay < currentValue);
+            if (nextLower) {
+                basicPayInput.value = nextLower;
+                validateBasicPay();
+                updateArrowButtons();
+                calculateProjectedPay();
+            }
+        });
+
+        // Validate basic pay input
+        function validateBasicPay() {
+            const value = parseInt(basicPayInput.value) || 0;
+            const isValid = value >= MIN_BASIC_PAY && value <= MAX_BASIC_PAY;
+            
+            if (isValid) {
+                basicPayInput.classList.remove('error');
+                basicPayError.style.display = 'none';
+                return true;
+            } else {
+                basicPayInput.classList.add('error');
+                basicPayError.style.display = 'block';
+                return false;
+            }
+        }
+
+        // Update arrow button states
+        function updateArrowButtons() {
+            const currentValue = parseInt(basicPayInput.value) || 0;
+            const minPay = Math.min(...SAMPLE_PAYS);
+            const maxPay = Math.max(...SAMPLE_PAYS);
+            
+            decrementBtn.disabled = currentValue <= minPay;
+            incrementBtn.disabled = currentValue >= maxPay;
+        }
+
+        // Update arrow buttons when input changes manually
+        basicPayInput.addEventListener('input', () => {
+            validateBasicPay();
+            updateArrowButtons();
+        });
+
+        function initializeProjectionMatrixTable() {
+            const factors = [1.8, 2.0, 2.2, 2.4, 2.57, 2.8];
+            let tableHTML = '<thead><tr><th>7th CPC Pay</th>';
+            
+            factors.forEach(factor => {
+                tableHTML += `<th>${factor.toFixed(2)}x</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            SAMPLE_PAYS.forEach(pay => {
+                tableHTML += `<tr><td>₹${pay.toLocaleString()}</td>`;
+                
+                factors.forEach(factor => {
+                    const projectedPay = Math.round((pay * factor) / 100) * 100;
+                    tableHTML += `<td>₹${projectedPay.toLocaleString()}</td>`;
+                });
+                
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody>';
+            projectionMatrixTable.innerHTML = tableHTML;
+        }
+
+        function initializeAllowancesTable() {
+            let tableHTML = '<thead><tr><th>Allowance Type</th><th>Current</th><th>Projected</th></tr></thead><tbody>';
+            
+            TRANSPORT_ALLOWANCES.forEach(ta => {
+                tableHTML += `<tr><td>TA (₹${ta})</td><td>₹${ta.toLocaleString()}</td><td>-</td></tr>`;
+            });
+            
+            for (const [cityClass, rates] of Object.entries(HRA_RATES)) {
+                rates.forEach(rate => {
+                    tableHTML += `<tr><td>HRA (${rate}%, ${cityClass})</td><td>${rate}% of BP</td><td>-</td></tr>`;
+                });
+            }
+            
+            tableHTML += '</tbody>';
+            allowancesTable.innerHTML = tableHTML;
+        }
+
+        function calculateProjectedPay() {
+            // Validate basic pay first
+            if (!validateBasicPay()) {
+                alert('Please enter a valid basic pay between ₹18,000 and ₹2,50,000');
+                return;
+            }
+            
+            const basicPay = parseFloat(basicPayInput.value);
+            
+            if (!basicPay || basicPay <= 0) {
+                alert('Please enter a valid basic pay');
+                return;
+            }
+            
+            let multiplicationFactor;
+            if (multiplicationFactorSelect.value === 'manual') {
+                multiplicationFactor = parseFloat(manualFactorInput.value) || 2.0;
+            } else {
+                multiplicationFactor = parseFloat(multiplicationFactorSelect.value);
+            }
+            
+            if (!multiplicationFactor || multiplicationFactor <= 0) {
+                alert('Please enter a valid multiplication factor');
+                return;
+            }
+            
+            // Calculate current pay with DA
+            const currentDA = basicPay * (CURRENT_DA_PERCENTAGE / 100);
+            const currentTotal = basicPay + currentDA;
+            
+            // Calculate projected pay
+            const projectedBasicPay = Math.round((basicPay * multiplicationFactor) / 100) * 100;
+            const projectedTotal = projectedBasicPay;
+            
+            // Calculate net difference
+            const netDifferenceAmount = projectedTotal - currentTotal;
+            const increasePercent = ((projectedBasicPay - basicPay) / basicPay * 100).toFixed(1);
+            
+            // Display result
+            resultValue.textContent = `₹${projectedBasicPay.toLocaleString()}`;
+            multiplicationFactorValue.textContent = multiplicationFactor.toFixed(2);
+            increasePercentage.textContent = `${increasePercent}%`;
+            
+            // Display financial impact
+            currentTotalPay.textContent = `₹${Math.round(currentTotal).toLocaleString()}`;
+            projectedTotalPay.textContent = `₹${projectedBasicPay.toLocaleString()}`;
+            
+            // Color code the net difference
+            netDifference.textContent = `₹${Math.round(netDifferenceAmount).toLocaleString()}`;
+            
+            if (netDifferenceAmount > 0) {
+                netDifference.className = 'impact-value positive';
+            } else if (netDifferenceAmount < 0) {
+                netDifference.className = 'impact-value negative';
+            } else {
+                netDifference.className = 'impact-value neutral';
+            }
+            
+            // Update tables
+            updateProjectionMatrix(basicPay, multiplicationFactor, projectedBasicPay);
+            updateAllowancesTable(basicPay, multiplicationFactor);
+            
+            // Update arrow button states
+            updateArrowButtons();
+        }
+
+        function updateProjectionMatrix(currentPay, currentFactor, projectedPay) {
+            const factors = [1.8, 2.0, 2.2, 2.4, 2.57, 2.8];
+            
+            if (!factors.some(f => Math.abs(f - currentFactor) < 0.01)) {
+                factors.push(currentFactor);
+                factors.sort((a, b) => a - b);
+            }
+            
+            let tableHTML = '<thead><tr><th>7th CPC Pay</th>';
+            
+            factors.forEach(factor => {
+                tableHTML += `<th class="${Math.abs(factor - currentFactor) < 0.01 ? 'highlight' : ''}">${factor.toFixed(2)}x</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            const samplePays = [...SAMPLE_PAYS];
+            if (!samplePays.includes(currentPay)) {
+                samplePays.unshift(currentPay);
+                samplePays.sort((a, b) => a - b);
+            }
+            
+            samplePays.forEach(pay => {
+                const isCurrentPay = Math.abs(pay - currentPay) < 1;
+                tableHTML += `<tr><td class="${isCurrentPay ? 'highlight' : ''}">₹${pay.toLocaleString()}</td>`;
+                
+                factors.forEach(factor => {
+                    const projected = Math.round((pay * factor) / 100) * 100;
+                    const isCurrentCalculation = Math.abs(pay - currentPay) < 1 && Math.abs(factor - currentFactor) < 0.01;
+                    tableHTML += `<td class="${isCurrentCalculation ? 'highlight' : ''}">₹${projected.toLocaleString()}</td>`;
+                });
+                
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody>';
+            projectionMatrixTable.innerHTML = tableHTML;
+        }
+
+        function updateAllowancesTable(currentPay, multiplicationFactor) {
+            const projectedBasicPay = Math.round((currentPay * multiplicationFactor) / 100) * 100;
+            
+            let tableHTML = '<thead><tr><th>Allowance Type</th><th>Current</th><th>Projected</th></tr></thead><tbody>';
+            
+            TRANSPORT_ALLOWANCES.forEach(ta => {
+                const projectedTA = Math.round((ta * multiplicationFactor) / 100) * 100;
+                tableHTML += `<tr><td>TA (₹${ta.toLocaleString()})</td><td>₹${ta.toLocaleString()}</td><td>₹${projectedTA.toLocaleString()}</td></tr>`;
+            });
+            
+            for (const [cityClass, rates] of Object.entries(HRA_RATES)) {
+                rates.forEach(rate => {
+                    const currentHRA = currentPay * (rate / 100);
+                    const projectedHRA = projectedBasicPay * (rate / 100);
+                    tableHTML += `<tr><td>HRA (${rate}%, ${cityClass})</td><td>₹${Math.round(currentHRA).toLocaleString()}</td><td>₹${Math.round(projectedHRA).toLocaleString()}</td></tr>`;
+                });
+            }
+            
+            tableHTML += '</tbody>';
+            allowancesTable.innerHTML = tableHTML;
+        }
+    </script>
+</body>
+</html>

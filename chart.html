@@ -1,0 +1,1063 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+   <style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --accent-color: #e74c3c;
+        --light-color: #ecf0f1;
+        --dark-color: #34495e;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --dpms-color: #e67e22;
+        --info-color: #3498db;
+        --border-radius: 8px;
+        --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        --box-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        line-height: 1.6;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .main-header {
+        text-align: center;
+        padding: 20px;
+        background: white;
+        color: var(--primary-color);
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .main-header h1 {
+        margin-bottom: 8px;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+    }
+    
+    .highlight {
+        color: var(--dpms-color);
+        font-weight: bold;
+        margin: 0 2px;
+    }
+    
+    .infographic-card {
+        background-color: #ffffff;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 15px;
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        height: 100%;
+    }
+    
+    .infographic-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-container {
+        position: relative;
+        flex-grow: 1;
+        min-height: 200px;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        width: 100%;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+        color: white;
+        box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(44, 62, 80, 0.4);
+    }
+    
+    .btn-secondary {
+        background: var(--light-color);
+        color: var(--dark-color);
+        border: 1px solid #ddd;
+    }
+    
+    .btn-secondary:hover {
+        background: #d6dbdf;
+        transform: translateY(-1px);
+    }
+    
+    .btn-sm {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    #dataTable input {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .chart-title-input {
+        border: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        background: transparent;
+        padding: 5px;
+        border-radius: 4px;
+        transition: var(--transition);
+        flex-grow: 1;
+    }
+    
+    .chart-title-input:focus {
+        outline: none;
+        background-color: #f9fafb;
+    }
+    
+    #barChartTitle {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .chart-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    
+    .chart-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .chart-modal-content {
+        background-color: white;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        max-width: 95%;
+        max-height: 95%;
+        position: relative;
+        width: 90vw;
+        box-shadow: var(--box-shadow-lg);
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        z-index: 1001;
+    }
+    
+    .close-modal:hover {
+        color: var(--primary-color);
+    }
+    
+    .modal-chart-container {
+        height: 80vh;
+        width: 100%;
+        position: relative;
+    }
+    
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    
+    .content-area {
+        display: flex;
+        flex: 1;
+        gap: 15px;
+        padding: 15px;
+        overflow: hidden;
+        min-height: 0;
+    }
+    
+    .data-panel {
+        flex: 0 0 320px;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        border: 1px solid #ddd;
+        min-height: 0;
+    }
+    
+    .data-panel-header {
+        padding: 15px;
+        border-bottom: 2px solid var(--light-color);
+        background: white;
+        flex-shrink: 0;
+    }
+    
+    .data-panel-header h2 {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .data-panel-header p {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+    
+    .data-panel-content {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    .data-table-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        font-weight: bold;
+        color: var(--dark-color);
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        padding: 0 5px;
+        flex-shrink: 0;
+    }
+    
+    .data-table-container {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        min-height: 0;
+    }
+    
+    .data-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+    
+    .data-input {
+        padding: 8px;
+        border-radius: 4px;
+        border: 2px solid #ddd;
+        width: 100%;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+    
+    .data-input:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    .data-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        flex-shrink: 0;
+        border-top: 1px solid #eee;
+    }
+    
+    .action-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .charts-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    .charts-top {
+        flex: 1;
+        min-height: 0;
+    }
+    
+    .charts-bottom {
+        flex: 1;
+        display: flex;
+        gap: 15px;
+        min-height: 0;
+    }
+    
+    .chart-bottom-item {
+        flex: 1;
+        min-height: 0;
+    }
+    
+    .bar-chart-header {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .bar-chart-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .bar-chart-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    /* New styles for compact buttons */
+    .compact-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .compact-actions .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .compact-actions .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    @media (max-width: 768px) {
+        .content-area {
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        .data-panel {
+            flex: none;
+            margin-bottom: 10px;
+            width: 100%;
+            min-height: 400px;
+        }
+        
+        .charts-bottom {
+            flex-direction: column;
+        }
+        
+        .main-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .main-header .subtitle {
+            font-size: 0.85rem;
+        }
+        
+        .data-actions {
+            flex-direction: column;
+        }
+        
+        .data-actions .flex {
+            justify-content: space-between;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="main-header">
+            <h1>
+                <span class="highlight">I</span>nteractive 
+                <span class="highlight">&nbsp;I</span>nfographic 
+                <span class="highlight">&nbsp;G</span>enerator
+            </h1>
+            <p class="subtitle">Enter your data and watch as beautiful infographics are created in real-time.</p>
+        </div>
+
+        <div class="content-area">
+            <!-- Data Input Panel -->
+            <section class="data-panel">
+                <div class="data-panel-header">
+                    <h2>Data Input</h2>
+                    <p>Enter your data in the rows below.</p>
+                </div>
+                <div class="data-panel-content">
+                    <div class="data-table-header">
+                        <div>Label</div>
+                        <div>Value</div>
+                    </div>
+                    <div class="data-table-container">
+                        <div id="dataTable" class="space-y-1">
+                            <!-- Initial data rows will be injected here by JS -->
+                        </div>
+                    </div>
+                    <div class="data-actions">
+                        <div class="action-group">
+                            <div class="compact-actions">
+                                <button id="addRowBtn" class="btn btn-secondary btn-sm">Add Row</button>
+                                <button id="deleteRowBtn" class="btn btn-secondary btn-sm">Delete Row</button>
+                                <button id="generateChartsBtn" class="btn btn-primary btn-sm">Generate</button>
+                            </div>
+                        </div>
+                        <div class="action-group">
+                            <div class="compact-actions">
+                                <button id="downloadDataBtn" class="btn btn-secondary btn-sm">Download Data</button>
+                                <button id="uploadDataBtn" class="btn btn-secondary btn-sm">Upload Data</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept=".json">
+                </div>
+            </section>
+
+            <!-- Charts Display Panel -->
+            <section class="charts-panel">
+                <!-- Top Chart (Bar Chart) -->
+                <div class="charts-top">
+                    <div class="infographic-card">
+                        <div class="bar-chart-header">
+                            <div class="bar-chart-title-row">
+                                <input type="text" class="chart-title-input" value="Data Comparison - Monthly Sales Performance Analysis" id="barChartTitle" placeholder="Enter chart title">
+                                <div class="bar-chart-actions">
+                                    <button class="btn btn-secondary btn-sm expand-chart" data-chart="barChart">Expand</button>
+                                    <button class="btn btn-primary btn-sm download-chart" data-chart="barChart">Download</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Charts (Pie and Line) -->
+                <div class="charts-bottom">
+                    <div class="chart-bottom-item">
+                        <div class="infographic-card">
+                            <div class="chart-header">
+                                <input type="text" class="chart-title-input" value="Distribution" id="pieChartTitle">
+                                <div class="chart-actions">
+                                    <button class="btn btn-secondary btn-sm expand-chart" data-chart="pieChart">Expand</button>
+                                    <button class="btn btn-primary btn-sm download-chart" data-chart="pieChart">Download</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-bottom-item">
+                        <div class="infographic-card">
+                            <div class="chart-header">
+                                <input type="text" class="chart-title-input" value="Trends" id="lineChartTitle">
+                                <div class="chart-actions">
+                                    <button class="btn btn-secondary btn-sm expand-chart" data-chart="lineChart">Expand</button>
+                                    <button class="btn btn-primary btn-sm download-chart" data-chart="lineChart">Download</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="lineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal for expanded chart view -->
+    <div id="chartModal" class="chart-modal">
+        <div class="chart-modal-content">
+            <button class="close-modal">&times;</button>
+            <h3 id="modalTitle" class="text-lg font-bold mb-2"></h3>
+            <div class="modal-chart-container">
+                <canvas id="modalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Register the Chart.js Data Labels plugin globally
+        Chart.register(ChartDataLabels);
+
+        // Define a function to generate a random color
+        function getRandomColor(alpha = 1) {
+            const r = Math.floor(Math.random() * 255);
+            const g = Math.floor(Math.random() * 255);
+            const b = Math.floor(Math.random() * 255);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Get the DOM elements
+        const dataTable = document.getElementById('dataTable');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const deleteRowBtn = document.getElementById('deleteRowBtn');
+        const generateChartsBtn = document.getElementById('generateChartsBtn');
+        const chartModal = document.getElementById('chartModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const uploadDataBtn = document.getElementById('uploadDataBtn');
+        const downloadDataBtn = document.getElementById('downloadDataBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        // Initial data for the charts
+        const initialData = {
+            'Jan': 500,
+            'Feb': 750,
+            'Mar': 600,
+            'Apr': 950,
+            'May': 800,
+        };
+
+        // Chart instances
+        let barChart, pieChart, lineChart, modalChart;
+
+        // Function to create a new input row
+        function createDataRow(label = '', value = '') {
+            const row = document.createElement('div');
+            row.className = 'data-row';
+            row.innerHTML = `
+                <input type="text" value="${label}" placeholder="Label" class="data-input label-input">
+                <input type="number" value="${value}" placeholder="Value" class="data-input value-input">
+            `;
+            dataTable.appendChild(row);
+        }
+
+        // Function to initialize the charts
+        function initializeCharts() {
+            // Initial data to populate the form
+            for (const [label, value] of Object.entries(initialData)) {
+                createDataRow(label, value);
+            }
+
+            // Get all data from the input fields
+            const data = getDataFromInputs();
+
+            // Create charts with initial data
+            const barChartCanvas = document.getElementById('barChart');
+            const pieChartCanvas = document.getElementById('pieChart');
+            const lineChartCanvas = document.getElementById('lineChart');
+
+            if (barChartCanvas && pieChartCanvas && lineChartCanvas) {
+                const labels = data.labels;
+                const values = data.values;
+                const backgroundColors = labels.map(() => getRandomColor(0.8));
+                const borderColors = labels.map(() => getRandomColor(1));
+
+                // Bar Chart
+                barChart = new Chart(barChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Values',
+                            data: values,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 10 } }
+                            },
+                            x: {
+                                ticks: { font: { size: 10 } }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { 
+                                cornerRadius: 4, 
+                                padding: 8,
+                                titleFont: { size: 10 },
+                                bodyFont: { size: 10 }
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#4a5568',
+                                font: { weight: 'bold', size: 9 },
+                                formatter: (value) => value.toLocaleString(),
+                            }
+                        }
+                    }
+                });
+
+                // Pie Chart
+                pieChart = new Chart(pieChartCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Distribution',
+                            data: values,
+                            backgroundColor: backgroundColors,
+                            hoverOffset: 12,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { 
+                                position: 'right', 
+                                labels: { 
+                                    padding: 10, 
+                                    font: { size: 9 } 
+                                } 
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = (context.parsed / total * 100).toFixed(1);
+                                            label += `${percentage}%`;
+                                        }
+                                        return label;
+                                    }
+                                },
+                                titleFont: { size: 10 },
+                                bodyFont: { size: 10 }
+                            },
+                            datalabels: {
+                                color: '#fff',
+                                formatter: (value, context) => {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = (value / total * 100);
+                                    return percentage > 5 ? `${percentage.toFixed(1)}%` : '';
+                                },
+                                font: { weight: 'bold', size: 9 },
+                            }
+                        }
+                    }
+                });
+
+                // Line Chart
+                lineChart = new Chart(lineChartCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Performance',
+                            data: values,
+                            borderColor: getRandomColor(1),
+                            backgroundColor: 'rgba(0, 0, 0, 0)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 10 } }
+                            },
+                            x: {
+                                ticks: { font: { size: 10 } }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { 
+                                cornerRadius: 4, 
+                                padding: 8,
+                                titleFont: { size: 10 },
+                                bodyFont: { size: 10 }
+                            },
+                            datalabels: {
+                                display: true,
+                                color: '#4a5568',
+                                align: 'end',
+                                anchor: 'end',
+                                font: { weight: 'bold', size: 9 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Function to get data from input fields
+        function getDataFromInputs() {
+            const labelInputs = document.querySelectorAll('.label-input');
+            const valueInputs = document.querySelectorAll('.value-input');
+            const labels = [];
+            const values = [];
+
+            for (let i = 0; i < labelInputs.length; i++) {
+                const label = labelInputs[i].value.trim();
+                const value = parseFloat(valueInputs[i].value);
+                if (label && !isNaN(value)) {
+                    labels.push(label);
+                    values.push(value);
+                }
+            }
+            return { labels, values };
+        }
+
+        // Function to update all charts
+        function updateCharts() {
+            const { labels, values } = getDataFromInputs();
+            const backgroundColors = labels.map(() => getRandomColor(0.8));
+            const borderColors = labels.map(() => getRandomColor(1));
+
+            // Update Bar Chart
+            barChart.data.labels = labels;
+            barChart.data.datasets[0].data = values;
+            barChart.data.datasets[0].backgroundColor = backgroundColors;
+            barChart.data.datasets[0].borderColor = borderColors;
+            barChart.update();
+
+            // Update Pie Chart
+            pieChart.data.labels = labels;
+            pieChart.data.datasets[0].data = values;
+            pieChart.data.datasets[0].backgroundColor = backgroundColors;
+            pieChart.update();
+
+            // Update Line Chart
+            lineChart.data.labels = labels;
+            lineChart.data.datasets[0].data = values;
+            lineChart.data.datasets[0].borderColor = getRandomColor(1);
+            lineChart.update();
+        }
+
+        // Function to delete the last row
+        function deleteLastRow() {
+            const rows = document.querySelectorAll('.data-row');
+            if (rows.length > 1) {
+                rows[rows.length - 1].remove();
+            }
+        }
+
+        // Function to download chart as image with title
+        function downloadChart(chartId) {
+            const chart = getChartById(chartId);
+            if (chart) {
+                const titleInput = document.getElementById(`${chartId}Title`);
+                const title = titleInput.value;
+                
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                const width = chart.canvas.width;
+                const height = chart.canvas.height + 40;
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                
+                tempCtx.fillStyle = 'white';
+                tempCtx.fillRect(0, 0, width, height);
+                
+                tempCtx.fillStyle = '#1f2937';
+                tempCtx.font = 'bold 18px Inter';
+                tempCtx.textAlign = 'center';
+                tempCtx.fillText(title, width / 2, 25);
+                
+                tempCtx.drawImage(chart.canvas, 0, 40);
+                
+                const link = document.createElement('a');
+                link.download = `${title.replace(/\s+/g, '_')}.png`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            }
+        }
+
+        // Function to expand chart in modal - FIXED VERSION
+        function expandChart(chartId) {
+            const chart = getChartById(chartId);
+            if (chart) {
+                // Get the title for the modal
+                const titleInput = document.getElementById(`${chartId}Title`);
+                modalTitle.textContent = titleInput.value;
+                
+                // Clear the modal canvas first
+                const modalChartContainer = document.querySelector('.modal-chart-container');
+                const oldCanvas = document.getElementById('modalChart');
+                if (oldCanvas) {
+                    oldCanvas.remove();
+                }
+                
+                // Create a new canvas element
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'modalChart';
+                modalChartContainer.appendChild(newCanvas);
+                
+                // Destroy existing modal chart if it exists
+                if (modalChart) {
+                    modalChart.destroy();
+                }
+                
+                // Create a new chart in the modal with the same data
+                modalChart = new Chart(newCanvas, {
+                    type: chart.config.type,
+                    data: JSON.parse(JSON.stringify(chart.data)),
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: chart.config.options.scales ? {
+                            ...chart.config.options.scales,
+                            y: {
+                                ...chart.config.options.scales.y,
+                                ticks: { font: { size: 14 } }
+                            },
+                            x: {
+                                ...chart.config.options.scales.x,
+                                ticks: { font: { size: 14 } }
+                            }
+                        } : {},
+                        plugins: {
+                            ...chart.config.options.plugins,
+                            legend: chart.config.options.plugins.legend ? {
+                                ...chart.config.options.plugins.legend,
+                                labels: { font: { size: 14 } }
+                            } : {},
+                            title: {
+                                display: true,
+                                text: titleInput.value,
+                                font: { size: 20, weight: 'bold' }
+                            },
+                            datalabels: chart.config.options.plugins.datalabels ? {
+                                ...chart.config.options.plugins.datalabels,
+                                font: { size: 12, weight: 'bold' }
+                            } : {}
+                        }
+                    }
+                });
+                
+                // Show the modal
+                chartModal.style.display = 'flex';
+            }
+        }
+
+        // Function to download chart data as JSON
+        function downloadChartData() {
+            const data = getDataFromInputs();
+            const chartTitles = {
+                barChart: document.getElementById('barChartTitle').value,
+                pieChart: document.getElementById('pieChartTitle').value,
+                lineChart: document.getElementById('lineChartTitle').value
+            };
+            
+            const exportData = {
+                labels: data.labels,
+                values: data.values,
+                chartTitles: chartTitles
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.download = 'chart_data.json';
+            link.href = URL.createObjectURL(dataBlob);
+            link.click();
+        }
+
+        // Function to upload chart data from JSON file
+        function uploadChartData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Clear existing rows
+                    dataTable.innerHTML = '';
+                    
+                    // Create new rows from uploaded data
+                    if (data.labels && data.values) {
+                        for (let i = 0; i < data.labels.length; i++) {
+                            createDataRow(data.labels[i], data.values[i]);
+                        }
+                    }
+                    
+                    // Update chart titles if available
+                    if (data.chartTitles) {
+                        if (data.chartTitles.barChart) {
+                            document.getElementById('barChartTitle').value = data.chartTitles.barChart;
+                        }
+                        if (data.chartTitles.pieChart) {
+                            document.getElementById('pieChartTitle').value = data.chartTitles.pieChart;
+                        }
+                        if (data.chartTitles.lineChart) {
+                            document.getElementById('lineChartTitle').value = data.chartTitles.lineChart;
+                        }
+                    }
+                    
+                    // Update charts with new data
+                    updateCharts();
+                    
+                    // Reset file input
+                    fileInput.value = '';
+                } catch (error) {
+                    alert('Error parsing JSON file. Please ensure it is a valid chart data file.');
+                    console.error('Error parsing JSON:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Helper function to get chart by ID
+        function getChartById(chartId) {
+            switch(chartId) {
+                case 'barChart': return barChart;
+                case 'pieChart': return pieChart;
+                case 'lineChart': return lineChart;
+                default: return null;
+            }
+        }
+
+        // Function to set up event listeners
+        function setupEventListeners() {
+            // Event listeners for static buttons
+            addRowBtn.addEventListener('click', () => createDataRow());
+            deleteRowBtn.addEventListener('click', deleteLastRow);
+            generateChartsBtn.addEventListener('click', updateCharts);
+            
+            // Event listeners for data export/import
+            downloadDataBtn.addEventListener('click', downloadChartData);
+            uploadDataBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', uploadChartData);
+            
+            // Event listeners for chart actions
+            document.querySelectorAll('.download-chart').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const chartId = e.target.getAttribute('data-chart');
+                    downloadChart(chartId);
+                });
+            });
+            
+            document.querySelectorAll('.expand-chart').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const chartId = e.target.getAttribute('data-chart');
+                    expandChart(chartId);
+                });
+            });
+            
+            // Close modal when clicking the close button
+            closeModalBtn.addEventListener('click', () => {
+                chartModal.style.display = 'none';
+                if (modalChart) {
+                    modalChart.destroy();
+                    modalChart = null;
+                }
+            });
+            
+            // Close modal when clicking outside the content
+            chartModal.addEventListener('click', (e) => {
+                if (e.target === chartModal) {
+                    chartModal.style.display = 'none';
+                    if (modalChart) {
+                        modalChart.destroy();
+                        modalChart = null;
+                    }
+                }
+            });
+        }
+
+        // Initialize the app on page load
+        window.addEventListener('DOMContentLoaded', initializeCharts);
+        
+        // Handle window resize to maintain chart proportions
+        window.addEventListener('resize', function() {
+            if (barChart) barChart.resize();
+            if (pieChart) pieChart.resize();
+            if (lineChart) lineChart.resize();
+            if (modalChart) modalChart.resize();
+        });
+    </script>
+</body>
+</html>

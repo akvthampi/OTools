@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkSmart™ Pro - The Ultimate Productivity Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5752D2;
+            --secondary: #FF6584;
+            --accent: #36D1DC;
+            --light: #F8F9FF;
+            --dark: #2D2B55;
+            --gray: #8C8CA1;
+            --gray-light: #E6E6F0;
+            --success: #4ADE80;
+            --radius: 12px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--gray-light);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar:hover {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .sidebar-header i {
+            font-size: 1.6rem;
+        }
+
+        .tools-list {
+            padding: 20px 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tool-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            padding: 10px 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tool-item:hover {
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .tool-item.active {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        .tool-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .tool-item:hover .tool-icon {
+            transform: scale(1.1);
+        }
+
+        .tool-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-hover);
+            z-index: 1000;
+            display: none;
+            min-width: 200px;
+            overflow: hidden;
+            border: 1px solid var(--gray-light);
+        }
+
+        .context-menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .context-menu-item:hover {
+            background: rgba(108, 99, 255, 0.08);
+        }
+
+        .context-menu-item i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-trigger {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--primary);
+            background: rgba(108, 99, 255, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+            display: none;
+        }
+
+        .menu-trigger:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .header-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        /* Navigation Links in Header */
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .nav-link.investing {
+            background: rgba(255, 101, 132, 0.1);
+            color: var(--secondary);
+        }
+
+        .nav-link.investing:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .nav-link.tools {
+            background: rgba(54, 209, 220, 0.1);
+            color: var(--accent);
+        }
+
+        .nav-link.tools:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .nav-link.calculators {
+            background: rgba(76, 222, 128, 0.1);
+            color: #16a34a;
+        }
+
+        .nav-link.calculators:hover {
+            background: #16a34a;
+            color: white;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            flex: 1;
+            padding: 30px;
+            background: var(--light);
+        }
+
+        .welcome-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .welcome-section h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .welcome-section p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 25px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid var(--gray-light);
+            position: relative;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+
+        .tool-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tool-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            background: var(--primary);
+        }
+
+        .tool-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .tool-card-desc {
+            font-size: 0.95rem;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        footer {
+            padding: 25px;
+            text-align: center;
+            background: white;
+            border-top: 1px solid var(--gray-light);
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .heart {
+            color: var(--secondary);
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            5% { transform: scale(1.1); }
+            10% { transform: scale(1); }
+            15% { transform: scale(1.1); }
+            20% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Tool Frame */
+        .tool-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            background: var(--light);
+            display: none;
+        }
+
+        /* Feedback Form Styles */
+        .feedback-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-hover);
+            max-width: 600px;
+            width: 100%;
+            margin: 1.5rem auto;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .feedback-form h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .feedback-form p {
+            font-size: 1rem;
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #5d6d7e;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .optional {
+            color: #95a5a6;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .form-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1.2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 1.5rem;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+
+        /* Hover indicator */
+        .hover-indicator {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 98;
+            pointer-events: none;
+        }
+
+        .hover-indicator.visible {
+            opacity: 1;
+        }
+
+        /* Floating Action Buttons */
+        .floating-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .floating-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-hover);
+            transition: var(--transition);
+            border: none;
+        }
+
+        .home-button {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+
+        .feedback-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .floating-button:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-button:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .feedback-button:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 15px 30px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Feedback Popup */
+        .feedback-popup {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-hover);
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+            border: 1px solid var(--gray-light);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-popup-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .feedback-popup-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .feedback-popup-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .feedback-popup-close:hover {
+            opacity: 1;
+        }
+
+        .feedback-popup-content {
+            padding: 20px;
+        }
+
+        .feedback-popup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .feedback-popup-form input,
+        .feedback-popup-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .feedback-popup-form input:focus,
+        .feedback-popup-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+        }
+
+        .feedback-popup-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .feedback-popup-submit {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .feedback-popup-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .optional-label {
+            color: #95a5a6;
+            font-style: italic;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        /* Invisible hover detection area */
+        .hover-detection-area {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 50px;
+            height: 100vh;
+            z-index: 97;
+            pointer-events: auto;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-trigger {
+                display: flex;
+            }
+
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .form-group label {
+                flex: none;
+                text-align: left;
+                width: 100%;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                width: 100%;
+            }
+            
+            .hover-detection-area {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-header {
+                padding: 15px 20px;
+            }
+
+            .dashboard-content {
+                padding: 20px;
+            }
+
+            .welcome-section {
+                padding: 30px 20px;
+            }
+
+            .welcome-section h2 {
+                font-size: 1.8rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                gap: 10px;
+            }
+
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link {
+                padding: 10px;
+            }
+
+            .feedback-form {
+                padding: 1.5rem;
+                margin: 1rem auto;
+            }
+
+            .feedback-form h3 {
+                font-size: 1.3rem;
+            }
+
+            .feedback-popup {
+                width: calc(100% - 40px);
+                right: 20px;
+                bottom: 90px;
+            }
+            
+            .floating-buttons {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .floating-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-header {
+                padding: 12px 15px;
+            }
+            
+            .header-logo {
+                height: 35px;
+            }
+            
+            .content-title {
+                font-size: 1.2rem;
+            }
+
+            .feedback-form {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar hidden" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-briefcase"></i>
+                <h1>WorkSmart™ Pro</h1>
+            </div>
+            
+            <div class="tools-list" id="toolsList">
+                <!-- Tools will be dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Hover detection area for iframe compatibility -->
+        <div class="hover-detection-area" id="hoverDetectionArea"></div>
+
+        <!-- Hover Indicator -->
+        <div class="hover-indicator" id="hoverIndicator">
+            <i class="fas fa-arrow-left"></i> Hover to open menu
+        </div>
+
+        <!-- Overlay for mobile -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Context Menu -->
+        <div class="context-menu" id="contextMenu">
+            <div class="context-menu-item" id="openInSameTab">
+                <i class="fas fa-window-maximize"></i>
+                <span>Open in same tab</span>
+            </div>
+            <div class="context-menu-item" id="openInNewTab">
+                <i class="fas fa-external-link-alt"></i>
+                <span>Open in new tab</span>
+            </div>
+            <div class="context-menu-item" id="openInNewWindow">
+                <i class="fas fa-window-restore"></i>
+                <span>Open in new window</span>
+            </div>
+        </div>
+
+        <!-- Floating Action Buttons -->
+        <div class="floating-buttons">
+            <button class="floating-button home-button" id="homeButton" title="Back to Dashboard">
+                <i class="fas fa-home"></i>
+            </button>
+            <button class="floating-button feedback-button" id="feedbackButton" title="Send Feedback">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        </div>
+
+        <!-- Feedback Popup -->
+        <div class="feedback-popup" id="feedbackPopup">
+            <div class="feedback-popup-header">
+                <h3>Send Feedback</h3>
+                <button class="feedback-popup-close" id="feedbackClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="feedback-popup-content">
+                <form class="feedback-popup-form" id="feedbackPopupForm" action="https://formspree.io/f/mblpwgnw" method="POST">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                    <input type="tel" name="phone" placeholder="Mobile Number (Optional)">
+                    <textarea name="message" placeholder="Your feedback, suggestions, or issues..." required></textarea>
+                    <button type="submit" class="feedback-popup-submit">
+                        <i class="fas fa-paper-plane"></i> Send Feedback
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content expanded" id="mainContent">
+            <div class="content-header">
+                <div class="header-left">
+                    <div class="menu-trigger" id="menuTrigger">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="content-title" id="contentTitle">WorkSmart™ Dashboard</div>
+                </div>
+                <div class="header-right">
+                    <!-- Navigation Links -->
+                    <div class="nav-links">
+                        <a href="https://invest.worksmartinfinite.org/" class="nav-link investing">
+                            <i class="fas fa-chart-line"></i>
+                            <span>WiseWallet™</span>
+                        </a>
+                        <a href="https://calc.worksmartinfinite.org/" class="nav-link calculators">
+                            <i class="fas fa-calculator"></i>
+                            <span>SmartYield™</span>
+                        </a>
+                        <a href="https://tools.worksmartinfinite.org/" class="nav-link tools">
+                            <i class="fas fa-tools"></i>
+                            <span>OmniKit™</span>
+                        </a>
+                    </div>
+                    <img src="cover.png" alt="WorkSmartInfinite Logo" class="header-logo">
+                </div>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-content" id="dashboardContent">
+                <div class="welcome-section">
+                    <h2>Welcome to WorkSmart™ Pro</h2>
+                    <p>Your all-in-one productivity toolkit designed to streamline office workflows and enhance efficiency.</p>
+                    
+                    <div class="stats-section">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalTools">0</div>
+                            <div class="stat-label">Productivity Tools</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="managementTools">0</div>
+                            <div class="stat-label">Management Tools</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="financeTools">0</div>
+                            <div class="stat-label">Finance Calculators</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="commTools">0</div>
+                            <div class="stat-label">Communication Tools</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 20px; color: var(--dark);">Featured Tools</h3>
+                
+                <div class="tool-grid" id="featuredTools">
+                    <!-- Featured tools will be dynamically populated -->
+                </div>
+            </div>
+            
+            <iframe class="tool-frame" id="toolFrame"></iframe>
+            
+            <footer>
+                <p>Made with <i class="fas fa-heart heart"></i> by Anil Kumar VT | Dedicated to Empowering Mankind, Completely Ad-Free.</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Tool data - easily modifiable (removed Feedback and Thank You tools)
+        const toolData = {
+            categories: [
+                {
+                    name: "Communication",
+                    tools: [
+                        {
+                            file: "imms.html",
+                            name: "Incoming Mail Management",
+                            icon: "fas fa-inbox",
+                            description: "Efficiently manage incoming correspondence",
+                            featured: true
+                        },
+                        {
+                            file: "omms.html",
+                            name: "Outgoing Mail Management", 
+                            icon: "fas fa-paper-plane",
+                            description: "Streamline outgoing mail processes",
+                            featured: false
+                        }
+                    ]
+                },
+                {
+                    name: "Management",
+                    tools: [
+                        {
+                            file: "dpms.html",
+                            name: "Disciplinary Proceedings",
+                            icon: "fas fa-gavel",
+                            description: "Manage disciplinary cases effectively",
+                            featured: true
+                        },
+                        {
+                            file: "chart.html",
+                            name: "Infographic Generator",
+                            icon: "fas fa-chart-line",
+                            description: "Create stunning data visualizations",
+                            featured: true
+                        },
+                        {
+                            file: "fmru.html",
+                            name: "File Flow Management",
+                            icon: "fas fa-exchange-alt",
+                            description: "Track and manage file movements",
+                            featured: false
+                        },
+                        {
+                            file: "empleavemgr.html",
+                            name: "Personal Leave Account",
+                            icon: "fas fa-user-clock",
+                            description: "Manage personal leave records",
+                            featured: false
+                        },
+                        {
+                            file: "supleavemgr.html",
+                            name: "Supervisor's Leave Account",
+                            icon: "fas fa-users-cog",
+                            description: "Oversee team leave management",
+                            featured: false
+                        },
+                        {
+                            file: "supdutyoff.html",
+                            name: "Supervisor Duty & Off Management",
+                            icon: "fas fa-user-tie",
+                            description: "Manage supervisor schedules",
+                            featured: false
+                        },
+                        {
+                            file: "suptaskmgr.html",
+                            name: "Supervisor's Task Management",
+                            icon: "fas fa-tasks",
+                            description: "Assign and track team tasks",
+                            featured: false
+                        }
+                    ]
+                },
+                {
+                    name: "Productivity",
+                    tools: [
+                        {
+                            file: "taskmgr.html",
+                            name: "Task Manager",
+                            icon: "fas fa-tasks",
+                            description: "Organize and track daily tasks",
+                            featured: true
+                        },
+                        {
+                            file: "firu.html",
+                            name: "Digital File Index",
+                            icon: "fas fa-search",
+                            description: "Quick file search and indexing",
+                            featured: false
+                        },
+                        {
+                            file: "quicknotes.html",
+                            name: "Sticky Notes",
+                            icon: "fas fa-sticky-note",
+                            description: "Quick note-taking utility",
+                            featured: true
+                        },
+                        {
+                            file: "taic.html",
+                            name: "Target Achievement",
+                            icon: "fas fa-bullseye",
+                            description: "Track goal progress and achievements",
+                            featured: false
+                        }
+                    ]
+                },
+                {
+                    name: "Finance",
+                    tools: [
+                        {
+                            file: "dabook.html",
+                            name: "Digital Account Book",
+                            icon: "fas fa-book",
+                            description: "Comprehensive accounting solution",
+                            featured: true
+                        },
+                        {
+                            file: "dcbook.html",
+                            name: "Digital Cash Book",
+                            icon: "fas fa-money-bill-wave",
+                            description: "Manage cash transactions",
+                            featured: false
+                        },
+                        {
+                            file: "payfixation.html",
+                            name: "Pay Fixation Comparator",
+                            icon: "fas fa-calculator",
+                            description: "Compare pay structures",
+                            featured: false
+                        },
+                        {
+                            file: "daratetracker.html",
+                            name: "DA Rate Tracker",
+                            icon: "fas fa-percentage",
+                            description: "Track dearness allowance rates",
+                            featured: false
+                        },
+                        {
+                            file: "advanceincalc.html",
+                            name: "Advance Increment",
+                            icon: "fas fa-rocket",
+                            description: "Calculate advance increments",
+                            featured: false
+                        },
+                        {
+                            file: "sixthtoseventh.html",
+                            name: "6th to 7th Pay Commission",
+                            icon: "fas fa-business-time",
+                            description: "Pay commission comparisons",
+                            featured: false
+                        },
+                        {
+                            file: "eightcpcprojection.html",
+                            name: "8th CPC Projection",
+                            icon: "fas fa-chart-area",
+                            description: "Future pay commission projections",
+                            featured: false
+                        },
+                        {
+                            file: "ppfcalc.html",
+                            name: "PPF Investment Calculator",
+                            icon: "fas fa-piggy-bank",
+                            description: "Calculate PPF investment returns",
+                            featured: false
+                        },
+                        {
+                            file: "gratuity.html",
+                            name: "Gratuity Calculator",
+                            icon: "fas fa-gift",
+                            description: "Calculate gratuity amounts",
+                            featured: false
+                        },
+                        {
+                            file: "pencommute.html",
+                            name: "Pension Commutation Calculator",
+                            icon: "fas fa-coins",
+                            description: "Pension commutation calculations",
+                            featured: false
+                        },
+                        {
+                            file: "leavencash.html",
+                            name: "Leave Encashment Calculator",
+                            icon: "fas fa-umbrella-beach",
+                            description: "Calculate leave encashment values",
+                            featured: false
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Elements
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const menuTrigger = document.getElementById('menuTrigger');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const toolFrame = document.getElementById('toolFrame');
+        const contentTitle = document.getElementById('contentTitle');
+        const overlay = document.getElementById('overlay');
+        const contextMenu = document.getElementById('contextMenu');
+        const toolsList = document.getElementById('toolsList');
+        const featuredTools = document.getElementById('featuredTools');
+        const hoverIndicator = document.getElementById('hoverIndicator');
+        const feedbackButton = document.getElementById('feedbackButton');
+        const homeButton = document.getElementById('homeButton');
+        const feedbackPopup = document.getElementById('feedbackPopup');
+        const feedbackClose = document.getElementById('feedbackClose');
+        const feedbackPopupForm = document.getElementById('feedbackPopupForm');
+        const hoverDetectionArea = document.getElementById('hoverDetectionArea');
+
+        // Current tool for context menu
+        let currentTool = null;
+        let sidebarAutoHide = true;
+        let hoverTimeout;
+
+        // Initialize the application
+        function initApp() {
+            renderSidebarTools();
+            renderFeaturedTools();
+            updateStats();
+            setupEventListeners();
+            
+            // Auto-hide sidebar on desktop after 2 seconds
+            setTimeout(() => {
+                if (window.innerWidth >= 1024) {
+                    hideSidebar();
+                    // Show hover indicator after hiding sidebar
+                    setTimeout(showHoverIndicator, 500);
+                }
+            }, 2000);
+        }
+
+        // Render sidebar tools
+        function renderSidebarTools() {
+            toolsList.innerHTML = '';
+            
+            toolData.categories.forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'tool-category';
+                
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = category.name;
+                categoryElement.appendChild(categoryTitle);
+                
+                category.tools.forEach(tool => {
+                    const toolItem = document.createElement('div');
+                    toolItem.className = 'tool-item';
+                    toolItem.setAttribute('data-file', tool.file);
+                    toolItem.setAttribute('data-name', tool.name);
+                    
+                    toolItem.innerHTML = `
+                        <div class="tool-icon">
+                            <i class="${tool.icon}"></i>
+                        </div>
+                        <div class="tool-name">${tool.name}</div>
+                    `;
+                    
+                    categoryElement.appendChild(toolItem);
+                });
+                
+                toolsList.appendChild(categoryElement);
+            });
+        }
+
+        // Render featured tools with randomization
+        function renderFeaturedTools() {
+            featuredTools.innerHTML = '';
+            
+            const featuredToolsList = [];
+            toolData.categories.forEach(category => {
+                category.tools.forEach(tool => {
+                    if (tool.featured) {
+                        featuredToolsList.push(tool);
+                    }
+                });
+            });
+            
+            // Shuffle array to get random order
+            shuffleArray(featuredToolsList);
+            
+            // Limit to 4 featured tools
+            const displayTools = featuredToolsList.slice(0, 4);
+            
+            displayTools.forEach(tool => {
+                const toolCard = document.createElement('div');
+                toolCard.className = 'tool-card';
+                toolCard.setAttribute('data-file', tool.file);
+                toolCard.setAttribute('data-name', tool.name);
+                
+                toolCard.innerHTML = `
+                    <div class="tool-card-header">
+                        <div class="tool-card-icon">
+                            <i class="${tool.icon}"></i>
+                        </div>
+                        <div class="tool-card-title">${tool.name}</div>
+                    </div>
+                    <div class="tool-card-desc">${tool.description}</div>
+                `;
+                
+                featuredTools.appendChild(toolCard);
+            });
+        }
+
+        // Fisher-Yates shuffle algorithm for randomization
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Update statistics
+        function updateStats() {
+            let totalTools = 0;
+            let managementTools = 0;
+            let financeTools = 0;
+            let commTools = 0;
+            
+            toolData.categories.forEach(category => {
+                totalTools += category.tools.length;
+                
+                if (category.name === "Management") managementTools = category.tools.length;
+                if (category.name === "Finance") financeTools = category.tools.length;
+                if (category.name === "Communication") commTools = category.tools.length;
+            });
+            
+            document.getElementById('totalTools').textContent = totalTools;
+            document.getElementById('managementTools').textContent = managementTools;
+            document.getElementById('financeTools').textContent = financeTools;
+            document.getElementById('commTools').textContent = commTools;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Toggle sidebar on mobile
+            menuTrigger.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                if (sidebar.classList.contains('active')) {
+                    hideHoverIndicator();
+                }
+            });
+            
+            // Close sidebar when clicking overlay
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            // Tool selection (left click)
+            document.addEventListener('click', function(e) {
+                const toolItem = e.target.closest('.tool-item, .tool-card');
+                if (toolItem) {
+                    const toolFile = toolItem.getAttribute('data-file');
+                    const toolName = toolItem.getAttribute('data-name');
+                    openToolInSameTab(toolFile, toolName);
+                    
+                    // Auto-hide sidebar after tool selection
+                    if (window.innerWidth >= 1024) {
+                        hideSidebar();
+                        hideHoverIndicator();
+                    }
+                }
+            });
+            
+            // Context menu (right click) - Fixed positioning
+            document.addEventListener('contextmenu', function(e) {
+                const toolItem = e.target.closest('.tool-item, .tool-card');
+                if (toolItem) {
+                    e.preventDefault();
+                    currentTool = {
+                        file: toolItem.getAttribute('data-file'),
+                        name: toolItem.getAttribute('data-name')
+                    };
+                    
+                    // Position context menu correctly at mouse position
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = e.pageX + 'px';
+                    contextMenu.style.top = e.pageY + 'px';
+                }
+            });
+            
+            // Context menu actions
+            document.getElementById('openInSameTab').addEventListener('click', function() {
+                if (currentTool) {
+                    openToolInSameTab(currentTool.file, currentTool.name);
+                    contextMenu.style.display = 'none';
+                    
+                    // Auto-hide sidebar after tool selection
+                    if (window.innerWidth >= 1024) {
+                        hideSidebar();
+                        hideHoverIndicator();
+                    }
+                }
+            });
+            
+            document.getElementById('openInNewTab').addEventListener('click', function() {
+                if (currentTool) {
+                    window.open(currentTool.file, '_blank');
+                    contextMenu.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('openInNewWindow').addEventListener('click', function() {
+                if (currentTool) {
+                    const features = 'width=1200,height=800,resizable=yes,scrollbars=yes';
+                    window.open(currentTool.file, '_blank', features);
+                    contextMenu.style.display = 'none';
+                }
+            });
+            
+            // Hide context menu when clicking elsewhere
+            document.addEventListener('click', function() {
+                contextMenu.style.display = 'none';
+            });
+            
+            // Prevent context menu from closing when clicking inside it
+            contextMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Show sidebar on hover (desktop only) - now using dedicated detection area
+            if (window.innerWidth >= 1024) {
+                hoverDetectionArea.addEventListener('mouseenter', function() {
+                    if (sidebarAutoHide) {
+                        showSidebar();
+                        hideHoverIndicator();
+                    }
+                });
+                
+                // Hide sidebar when mouse moves away from sidebar area
+                let sidebarHoverTimeout;
+                document.addEventListener('mousemove', function(e) {
+                    // Clear any existing timeout
+                    clearTimeout(sidebarHoverTimeout);
+                    
+                    // Check if mouse is near the left edge (within 50px)
+                    if (e.clientX < 50) {
+                        if (sidebarAutoHide && sidebar.classList.contains('hidden')) {
+                            showSidebar();
+                            hideHoverIndicator();
+                        }
+                    } 
+                    // If mouse moves away from sidebar area, hide it after delay
+                    else if (e.clientX > 300 && !sidebar.classList.contains('hidden')) {
+                        sidebarHoverTimeout = setTimeout(() => {
+                            hideSidebar();
+                            showHoverIndicator();
+                        }, 300);
+                    }
+                });
+            }
+
+            // Feedback floating button
+            feedbackButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                feedbackPopup.style.display = 'block';
+            });
+
+            // Home button - back to dashboard
+            homeButton.addEventListener('click', function() {
+                // Show dashboard content
+                dashboardContent.style.display = 'block';
+                toolFrame.style.display = 'none';
+                contentTitle.textContent = 'WorkSmart™ Dashboard';
+                
+                // Re-enable hover indicator
+                if (window.innerWidth >= 1024 && sidebarAutoHide) {
+                    setTimeout(showHoverIndicator, 500);
+                }
+            });
+
+            // Close feedback popup
+            feedbackClose.addEventListener('click', function() {
+                feedbackPopup.style.display = 'none';
+            });
+
+            // Close feedback popup when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!feedbackPopup.contains(e.target) && e.target !== feedbackButton) {
+                    feedbackPopup.style.display = 'none';
+                }
+            });
+
+            // Handle form submission
+            feedbackPopupForm.addEventListener('submit', function() {
+                // Form will submit to new tab due to target="_blank"
+                setTimeout(() => {
+                    feedbackPopup.style.display = 'none';
+                    feedbackPopupForm.reset();
+                }, 500);
+            });
+        }
+
+        // Show sidebar
+        function showSidebar() {
+            sidebar.classList.remove('hidden');
+            mainContent.classList.remove('expanded');
+        }
+
+        // Hide sidebar
+        function hideSidebar() {
+            sidebar.classList.add('hidden');
+            mainContent.classList.add('expanded');
+        }
+
+        // Show hover indicator
+        function showHoverIndicator() {
+            if (window.innerWidth >= 1024 && sidebarAutoHide) {
+                hoverIndicator.classList.add('visible');
+            }
+        }
+
+        // Hide hover indicator
+        function hideHoverIndicator() {
+            hoverIndicator.classList.remove('visible');
+        }
+
+        // Open tool in same tab
+        function openToolInSameTab(toolFile, toolName) {
+            // Update content
+            contentTitle.textContent = toolName;
+            
+            // Show tool in iframe
+            dashboardContent.style.display = 'none';
+            toolFrame.style.display = 'block';
+            toolFrame.src = toolFile;
+            
+            // Hide hover indicator when tool is active
+            hideHoverIndicator();
+            
+            // Close sidebar on mobile
+            if (window.innerWidth < 1024) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        // Responsive behavior
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                // Enable auto-hide on desktop
+                sidebarAutoHide = true;
+                hideHoverIndicator();
+            } else {
+                // Disable auto-hide on mobile
+                sidebarAutoHide = false;
+                hideHoverIndicator();
+                // Hide detection area on mobile
+                hoverDetectionArea.style.display = 'none';
+            }
+        });
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

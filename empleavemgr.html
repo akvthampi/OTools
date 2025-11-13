@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Leave Balance Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --dpms-color: #e67e22;
+            --info-color: #3498db;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --box-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .main-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 25px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--box-shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="0,0 100,100 0,100" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 100% 100%;
+        }
+        
+        .main-header h1 {
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+        
+        .highlight {
+            color: var(--dpms-color);
+            font-weight: bold;
+            margin: 0 2px;
+        }
+        
+        .main-header h1 svg {
+            width: 32px;
+            height: 32px;
+            margin-right: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .main-header .subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+            line-height: 1.4;
+        }
+        
+        .section {
+            background: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid #ddd;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .section:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            padding: 20px;
+            margin-bottom: 0;
+            border-bottom: 2px solid var(--light-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 60px;
+            touch-action: manipulation;
+        }
+        
+        .section-header h2 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .section-header p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .toggle-icon {
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+        }
+        
+        .section-content {
+            padding: 0 20px 20px 20px;
+        }
+        
+        /* JUSTIFIED BALANCE GRID - EQUAL SPACING ACROSS ALL SCREENS */
+        .balance-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px 15px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid #ddd;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            touch-action: manipulation;
+            flex: 1 1 calc(33.333% - 15px);
+            min-width: 150px;
+            max-width: 100%;
+        }
+        
+        .balance-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+        
+        .balance-card:nth-child(1)::before {
+            background: linear-gradient(90deg, var(--primary-color), var(--info-color));
+        }
+        
+        .balance-card:nth-child(2)::before {
+            background: linear-gradient(90deg, var(--warning-color), var(--accent-color));
+        }
+        
+        .balance-card:nth-child(3)::before {
+            background: linear-gradient(90deg, var(--success-color), var(--primary-color));
+        }
+        
+        .balance-card:nth-child(4)::before {
+            background: linear-gradient(90deg, var(--info-color), var(--secondary-color));
+        }
+        
+        .balance-card:nth-child(5)::before {
+            background: linear-gradient(90deg, var(--accent-color), var(--warning-color));
+        }
+        
+        .balance-card:nth-child(6)::before {
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+        }
+        
+        .balance-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .balance-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        .balance-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .balance-label {
+            font-size: 1rem;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .balance-description {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+        
+        .form-container {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            min-height: 44px;
+        }
+        
+        .form-header:hover {
+            background: rgba(44, 62, 80, 0.05);
+        }
+        
+        .form-header h2 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: white;
+            border: 2px solid #ddd;
+            font-size: 16px; /* Prevents zoom on iOS */
+            color: #333;
+            transition: var(--transition);
+            border-radius: 4px;
+            font-weight: 400;
+            min-height: 44px;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .input-group input::placeholder {
+            color: #95a5a6;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(44, 62, 80, 0.4);
+        }
+        
+        .submit-btn:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+        
+        .submit-btn svg {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+        
+        .green-btn {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+        
+        .green-btn:hover {
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+        }
+        
+        .red-btn {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        .red-btn:hover {
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .blue-btn {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .blue-btn:hover {
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .info-box {
+            background: rgba(52, 152, 219, 0.08);
+            border-left: 4px solid var(--secondary-color);
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            line-height: 1.4;
+        }
+        
+        .info-box strong {
+            color: var(--secondary-color);
+        }
+        
+        .transactions-container {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            max-height: 450px;
+            overflow-y: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 600px;
+        }
+        
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+        
+        th {
+            background: var(--light-color);
+            font-weight: 600;
+            color: var(--primary-color);
+            position: sticky;
+            top: 0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        tr {
+            min-height: 44px;
+        }
+        
+        tr:hover {
+            background: rgba(52, 152, 219, 0.03);
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 15px 20px;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-btn:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+        
+        .action-btn svg {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+        }
+        
+        .disclaimer {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .creator {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #95a5a6;
+        }
+        
+        #toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            max-width: 350px;
+        }
+        
+        .toast {
+            padding: 16px 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+        }
+        
+        .toast-error {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+        
+        .toast svg {
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        #custom-confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 15px;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: none;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            position: relative;
+            animation: modalAppear 0.3s ease;
+        }
+        
+        @keyframes modalAppear {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal-title {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .modal-message {
+            color: var(--dark-color);
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            flex: 1;
+            font-size: 1rem;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+        
+        .modal-btn:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+        
+        .modal-cancel {
+            background: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .modal-cancel:hover {
+            background: #d6dbdf;
+        }
+        
+        .modal-confirm {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            color: white;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Style for the collapsible section transition */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .collapsible-content.open {
+            max-height: 2000px; /* Adjust this value based on your content */
+            transition: max-height 0.5s ease-in;
+        }
+        
+        /* Delete button styling */
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-height: 36px;
+            min-width: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        
+        .delete-btn:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 1px;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+        
+        /* Loading state */
+        .loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 0;
+            }
+            
+            .section {
+                margin-bottom: 15px;
+            }
+            
+            .main-header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .main-header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .main-header .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            /* Adjusted for 2 columns on tablet */
+            .balance-card {
+                flex: 1 1 calc(50% - 15px);
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .input-group[style*="grid-column: 1 / -1"] {
+                grid-column: 1 / -1 !important;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .hidden-mobile {
+                display: none;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .table-container {
+                font-size: 0.85rem;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+            
+            th {
+                font-size: 0.8rem;
+            }
+            
+            /* Hide purpose column on mobile */
+            th:nth-child(4), td:nth-child(4) {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .section {
+                padding: 15px;
+                margin-bottom: 12px;
+            }
+            
+            .section-header {
+                padding: 15px;
+            }
+            
+            .section-content {
+                padding: 0 15px 15px 15px;
+            }
+            
+            .main-header {
+                padding: 18px 12px;
+            }
+            
+            .main-header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .main-header .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            /* Single column on very small screens */
+            .balance-card {
+                flex: 1 1 100%;
+            }
+            
+            .balance-card {
+                padding: 18px 12px;
+                min-height: 150px;
+            }
+            
+            .balance-value {
+                font-size: 1.6rem;
+            }
+            
+            .balance-label {
+                font-size: 0.95rem;
+            }
+            
+            .balance-description {
+                font-size: 0.75rem;
+            }
+            
+            .action-btn {
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+            
+            .form-container {
+                padding: 15px;
+            }
+            
+            .modal-content {
+                padding: 18px;
+                width: 95%;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-btn {
+                width: 100%;
+            }
+            
+            /* Toast positioning for mobile */
+            #toast-message {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+            
+            .toast {
+                padding: 14px;
+                font-size: 0.9rem;
+            }
+            
+            .table-container {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .main-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .section-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .balance-card {
+                min-height: 140px;
+                padding: 15px 10px;
+            }
+            
+            .balance-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-header">
+            <h1>
+                <i class="fas fa-calendar-alt"></i>
+                <span class="highlight">&nbsp;P</span>ersonal 
+                <span class="highlight">&nbsp;L</span>eave 
+                <span class="highlight">&nbsp;A</span>ccount
+                <span class="highlight">&nbsp;M</span>anager
+            </h1>
+            <p class="subtitle">Manage EL, HPL, CL, RH, CCL, and ML balances.</p>
+        </div>
+
+        <div id="toast-message"></div>
+
+        <div class="section">
+            <div class="section-header">
+                <div>
+                    <h2>Current Leave Balances</h2>
+                    <p>Track your available leave days and quotas</p>
+                </div>
+            </div>
+            <div class="section-content">
+                <div id="balance-display" class="balance-grid">
+                    <!-- Balance cards will be dynamically inserted here -->
+                </div>
+                <div class="info-box">
+                    <p><strong>Note:</strong> EL, HPL, CCL, ML debit <strong>calendar days</strong>. CL (including half-day), RH, and Commuted Leave debit <strong>working days</strong> or <strong>x2 HPL</strong>, respectively, as per typical CGE rules.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('initial-balance-section')">
+                <div>
+                    <h2>Initial/Adjust Leave Balance Setup (Days)</h2>
+                    <p>Set or update your initial leave balances</p>
+                </div>
+                <i id="toggle-icon-initial-balance" class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div id="initial-balance-section" class="collapsible-content">
+                <div class="section-content">
+                    <div class="form-container">
+                        <form id="initial-balance-form" class="form-grid">
+                            <div class="input-group">
+                                <label for="initial-el">Earned Leave (EL - Max 300)</label>
+                                <input type="number" id="initial-el" name="EL" placeholder="e.g., 250">
+                            </div>
+                            <div class="input-group">
+                                <label for="initial-hpl">Half Pay Leave (HPL)</label>
+                                <input type="number" id="initial-hpl" name="HPL" placeholder="e.g., 100">
+                            </div>
+                            <div class="input-group">
+                                <label for="initial-cl">Casual Leave (CL - Annual)</label>
+                                <input type="number" id="initial-cl" name="CL" placeholder="e.g., 8">
+                            </div>
+                            <div class="input-group">
+                                <label for="initial-rh">Restricted Holiday (RH - Annual)</label>
+                                <input type="number" id="initial-rh" name="RH" placeholder="e.g., 2">
+                            </div>
+                            <div class="input-group">
+                                <label for="initial-ccl">Child Care Leave (CCL - Lifetime Quota)</label>
+                                <input type="number" id="initial-ccl" name="CCL_Quota" placeholder="e.g., 730">
+                            </div>
+                            <div class="input-group">
+                                <label for="initial-ml">Maternity Leave (ML - Total Days Used)</label>
+                                <input type="number" id="initial-ml" name="ML_Used" placeholder="e.g., 0">
+                                <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">Enter 0 if unused.</p>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <button type="submit" class="submit-btn">
+                                    <i class="fas fa-check-circle"></i>
+                                    Set/Update Initial Balances
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('leave-credit-section')">
+                <div>
+                    <h2>Record Periodic Leave Credit (Accrual)</h2>
+                    <p>Add regular leave credits as they accrue</p>
+                </div>
+                <i id="toggle-icon-leave-credit" class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div id="leave-credit-section" class="collapsible-content">
+                <div class="section-content">
+                    <div class="form-container">
+                        <form id="leave-credit-form" class="form-grid">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="credit-type">Leave Type</label>
+                                <select id="credit-type" name="type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="EL">Earned Leave (EL - 15 Days)</option>
+                                    <option value="HPL">Half Pay Leave (HPL - 10 Days)</option>
+                                    <option value="CL">Casual Leave (CL - 8 Days)</option>
+                                    <option value="RH">Restricted Holiday (RH - 2 Days)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="credit-date">Date of Credit</label>
+                                <input type="date" id="credit-date" name="creditDate" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="credit-remark">Remarks (Optional)</label>
+                                <input type="text" id="credit-remark" name="remark" placeholder="e.g., July 1st Accrual">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <button type="submit" class="submit-btn green-btn">
+                                    <i class="fas fa-plus-circle"></i>
+                                    Record Leave Credit
+                                </button>
+                                <div class="info-box">
+                                    <p>Use this for half-yearly EL/HPL credits (Jan 1, Jul 1) or annual CL/RH credits (Jan 1).</p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('leave-transaction-section')">
+                <div>
+                    <h2>Record a New Leave Transaction</h2>
+                    <p>Add leave periods to track your usage</p>
+                </div>
+                <i id="toggle-icon-leave-transaction" class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div id="leave-transaction-section" class="collapsible-content">
+                <div class="section-content">
+                    <div class="form-container">
+                        <form id="leave-transaction-form" class="form-grid">
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="leave-type">Leave Type</label>
+                                <select id="leave-type" name="type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="EL">Earned Leave (EL)</option>
+                                    <option value="HPL">Half Pay Leave (HPL)</option>
+                                    <option value="COMMUTED_HPL">Commuted Leave (Medical - Debits HPL x 2)</option>
+                                    <option value="CL_FULL">Casual Leave (Full Day)</option>
+                                    <option value="CL_HALF">Casual Leave (Half Day)</option>
+                                    <option value="RH">Restricted Holiday (RH)</option>
+                                    <option value="CCL">Child Care Leave (CCL)</option>
+                                    <option value="ML">Maternity Leave (ML)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="start-date">Start Date</label>
+                                <input type="date" id="start-date" name="startDate" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="end-date">End Date</label>
+                                <input type="date" id="end-date" name="endDate" required>
+                            </div>
+                            <div id="half-day-container" class="input-group" style="grid-column: 1 / -1; display: none;">
+                                <label for="half-day-session">Half Day Session</label>
+                                <select id="half-day-session" name="halfDaySession">
+                                    <option value="FORENOON">Forenoon</option>
+                                    <option value="AFTERNOON">Afternoon</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="grid-column: 1 / -1;">
+                                <label for="purpose">Purpose / Remarks</label>
+                                <input type="text" id="purpose" name="purpose" placeholder="e.g., Family Vacation">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <button type="submit" class="submit-btn green-btn">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    Add Leave Period & Recalculate
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('transactions-section')">
+                <div>
+                    <h2>Transaction History & Data Management</h2>
+                    <p>View your leave history and manage your data</p>
+                </div>
+                <i id="toggle-icon-transactions" class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+            <div id="transactions-section" class="collapsible-content">
+                <div class="section-content">
+                    <div class="transactions-container">
+                        <div class="action-buttons">
+                            <button onclick="downloadData()" class="action-btn blue-btn">
+                                <i class="fas fa-download"></i>
+                                Download Data
+                            </button>
+                            
+                            <label class="action-btn blue-btn file-input-label">
+                                <i class="fas fa-upload"></i>
+                                Upload Data
+                                <input type="file" id="upload-file-input" accept=".json" class="file-input" onchange="uploadData(event)">
+                            </label>
+
+                            <button onclick="requestClearAllData()" class="action-btn red-btn">
+                                <i class="fas fa-trash"></i>
+                                Clear All Data
+                            </button>
+                        </div>
+
+                        <div id="transactions-list-container" class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date Range / Credit Date</th>
+                                        <th>Type</th>
+                                        <th style="text-align: right;">Days Change</th>
+                                        <th class="hidden-mobile">Purpose</th>
+                                        <th style="text-align: right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="disclaimer">
+                Disclaimer: This is a personal leave tracker for informational purposes only. Always verify with official records.
+            </div>       
+        </div>
+    </div>
+
+    <div id="custom-confirm-modal">
+        <div class="modal-content">
+            <h3 id="confirm-title" class="modal-title">Confirm Deletion</h3>
+            <p id="confirm-message" class="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="confirm-cancel" class="modal-btn modal-cancel">Cancel</button>
+                <button id="confirm-ok" class="modal-btn modal-confirm">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data structure, initialized on load
+        let employeeData = {
+            initialBalance: { EL: 0, HPL: 0, CL: 0, RH: 0, CCL_Quota: 730, ML_Used: 0 },
+            leaveTransactions: []
+        };
+        
+        // --- Utility Functions ---
+
+        /**
+         * Converts a date string from YYYY-MM-DD to DD/MM/YYYY format.
+         * @param {string} dateString - Date in YYYY-MM-DD format.
+         * @returns {string} Date in DD/MM/YYYY format.
+         */
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const parts = dateString.split('-'); // YYYY-MM-DD
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+            }
+            return dateString;
+        }
+
+        /**
+         * Custom toast notification function (replaces alert())
+         * @param {string} message The text to display.
+         * @param {string} type 'success' or 'error'
+         */
+        function showToast(message, type = 'success') {
+            const toastElement = document.getElementById('toast-message');
+            const colorClass = type === 'success' ? 'toast-success' : 'toast-error';
+            
+            toastElement.innerHTML = `
+                <div class="toast ${colorClass}">
+                    ${type === 'success' ? 
+                        '<i class="fas fa-check-circle" style="width: 24px; height: 24px;"></i>' : 
+                        '<i class="fas fa-exclamation-triangle" style="width: 24px; height: 24px;"></i>'
+                    }
+                    ${message}
+                </div>
+            `;
+            toastElement.style.opacity = '1';
+
+            setTimeout(() => {
+                toastElement.style.opacity = '0';
+            }, 4000);
+        }
+        
+        /**
+         * Custom confirmation dialog (replaces native confirm()).
+         * @param {string} title - The title of the modal.
+         * @param {string} message - The confirmation message.
+         * @returns {Promise<boolean>} Resolves true if OK is clicked, false otherwise.
+         */
+        function showConfirmation(title, message) {
+            return new Promise(resolve => {
+                const modal = document.getElementById('custom-confirm-modal');
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-message').textContent = message;
+
+                modal.style.display = 'flex';
+
+                const handleCancel = () => {
+                    modal.style.display = 'none';
+                    document.getElementById('confirm-cancel').removeEventListener('click', handleCancel);
+                    document.getElementById('confirm-ok').removeEventListener('click', handleOk);
+                    resolve(false);
+                };
+
+                const handleOk = () => {
+                    modal.style.display = 'none';
+                    document.getElementById('confirm-cancel').removeEventListener('click', handleCancel);
+                    document.getElementById('confirm-ok').removeEventListener('click', handleOk);
+                    resolve(true);
+                };
+
+                document.getElementById('confirm-cancel').addEventListener('click', handleCancel);
+                document.getElementById('confirm-ok').addEventListener('click', handleOk);
+            });
+        }
+
+        /**
+         * Shows/hides the half-day session selector based on leave type
+         */
+        function toggleHalfDaySession() {
+            const leaveType = document.getElementById('leave-type').value;
+            const halfDayContainer = document.getElementById('half-day-container');
+            const endDateInput = document.getElementById('end-date');
+            
+            if (leaveType === 'CL_HALF') {
+                halfDayContainer.style.display = 'block';
+                // For half-day CL, set the same date for start and end
+                const startDate = document.getElementById('start-date').value;
+                endDateInput.value = startDate;
+                endDateInput.disabled = true;
+            } else {
+                halfDayContainer.style.display = 'none';
+                endDateInput.disabled = false;
+            }
+        }
+
+        /**
+         * Calculates the number of calendar days between two dates (inclusive).
+         * Used for EL, HPL, CCL, ML, and Commuted Leave (for base days).
+         * @param {string} dateString1 Start Date (YYYY-MM-DD).
+         * @param {string} dateString2 End Date (YYYY-MM-DD).
+         * @returns {number} Total days.
+         */
+        function calculateDays(dateString1, dateString2) {
+            const oneDay = 1000 * 60 * 60 * 24;
+            const date1 = new Date(dateString1);
+            const date2 = new Date(dateString2);
+            // Add 1 day for inclusive calculation
+            const diffDays = Math.round(Math.abs((date1.getTime() - date2.getTime()) / oneDay)) + 1;
+            return diffDays;
+        }
+        
+        /**
+         * Calculates the number of working days (excluding Sat/Sun) between two dates (inclusive).
+         * Handles half-day casual leaves.
+         * @param {string} dateString1 Start Date (YYYY-MM-DD).
+         * @param {string} dateString2 End Date (YYYY-MM-DD).
+         * @param {string} leaveType Type of leave (for half-day calculation)
+         * @param {string} halfDaySession Session for half-day leave (FORENOON/AFTERNOON)
+         * @returns {number} Total working days.
+         */
+        function calculateWorkingDays(dateString1, dateString2, leaveType = '', halfDaySession = '') {
+            // For half-day casual leave, return 0.5 days
+            if (leaveType === 'CL_HALF') {
+                return 0.5;
+            }
+            
+            let workingDays = 0;
+            let currentDate = new Date(dateString1);
+            const endDate = new Date(dateString2);
+            
+            // Normalize time to 00:00:00 to avoid daylight saving issues during calculation
+            currentDate.setHours(0, 0, 0, 0);
+            endDate.setHours(0, 0, 0, 0);
+
+            // Loop through each date
+            while (currentDate.getTime() <= endDate.getTime()) {
+                const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+                
+                // Check if it's a weekday (Monday=1 to Friday=5)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    workingDays++;
+                }
+                
+                // Move to the next day
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return workingDays;
+        }
+
+        /**
+         * Toggles the visibility of a section.
+         * @param {string} sectionId The ID of the section container.
+         */
+        function toggleSection(sectionId) {
+            const container = document.getElementById(sectionId);
+            const icon = document.getElementById(`toggle-icon-${sectionId.replace('-section', '')}`);
+            
+            container.classList.toggle('open');
+            
+            if (container.classList.contains('open')) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // --- Data Management ---
+
+        /**
+         * Saves the current employeeData object to LocalStorage.
+         */
+        function saveData() {
+            try {
+                localStorage.setItem('leaveData', JSON.stringify(employeeData));
+            } catch (error) {
+                console.error("Error saving data to LocalStorage:", error);
+            }
+        }
+
+        /**
+         * Loads data from LocalStorage into the employeeData object.
+         */
+        function loadData() {
+            try {
+                const storedData = localStorage.getItem('leaveData');
+                if (storedData) {
+                    employeeData = JSON.parse(storedData);
+                }
+            } catch (error) {
+                console.error("Error loading data from LocalStorage:", error);
+                // Reset to defaults if there's an error
+                employeeData = {
+                    initialBalance: { EL: 0, HPL: 0, CL: 0, RH: 0, CCL_Quota: 730, ML_Used: 0 },
+                    leaveTransactions: []
+                };
+            }
+        }
+
+        /**
+         * Downloads the current employeeData as a JSON file.
+         */
+        function downloadData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(employeeData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "leave_data_" + new Date().toISOString().slice(0, 10) + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showToast('Data downloaded successfully!', 'success');
+        }
+
+        /**
+         * Handles the upload of a JSON file to replace the current employeeData.
+         * @param {Event} event The file input change event.
+         */
+        function uploadData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const uploadedData = JSON.parse(e.target.result);
+                    
+                    // Basic validation of the uploaded data structure
+                    if (uploadedData && uploadedData.initialBalance && Array.isArray(uploadedData.leaveTransactions)) {
+                        employeeData = uploadedData;
+                        saveData();
+                        updateUI();
+                        showToast('Data uploaded successfully!', 'success');
+                    } else {
+                        throw new Error("Invalid data structure");
+                    }
+                } catch (error) {
+                    console.error("Error parsing uploaded file:", error);
+                    showToast('Error: Invalid file format or data structure.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset the file input
+            event.target.value = '';
+        }
+
+        /**
+         * Prompts the user and clears all local data if confirmed.
+         */
+        function requestClearAllData() {
+            showConfirmation(
+                "Clear All Data", 
+                "This will permanently delete all your leave balances and transaction history. This action cannot be undone. Are you sure?"
+            ).then(confirmed => {
+                if (confirmed) {
+                    localStorage.removeItem('leaveData');
+                    employeeData = {
+                        initialBalance: { EL: 0, HPL: 0, CL: 0, RH: 0, CCL_Quota: 730, ML_Used: 0 },
+                        leaveTransactions: []
+                    };
+                    updateUI();
+                    showToast('All data has been cleared.', 'success');
+                }
+            });
+        }
+
+        // --- Balance Calculation ---
+
+        /**
+         * Calculates the current balances for all leave types based on initial balances and transactions.
+         * @returns {Object} An object containing current balances for each leave type.
+         */
+        function calculateCurrentBalances() {
+            // Start with the initial balances
+            const currentBalances = { ...employeeData.initialBalance };
+            
+            // Process each transaction
+            employeeData.leaveTransactions.forEach(transaction => {
+                const type = transaction.type;
+                const days = transaction.days || 0;
+                
+                if (type === 'EL' || type === 'HPL' || type === 'CL' || type === 'RH') {
+                    // For standard leave types, subtract the days used
+                    currentBalances[type] -= days;
+                } else if (type === 'CCL') {
+                    // For CCL, subtract from the quota
+                    currentBalances.CCL_Quota -= days;
+                } else if (type === 'ML') {
+                    // For ML, add to the used total
+                    currentBalances.ML_Used += days;
+                } else if (type === 'COMMUTED_HPL') {
+                    // For Commuted Leave, debit from HPL at 2x the rate
+                    currentBalances.HPL -= (days * 2);
+                }
+            });
+            
+            // Ensure balances don't go below zero (except for ML_Used which is cumulative)
+            currentBalances.EL = Math.max(0, currentBalances.EL);
+            currentBalances.HPL = Math.max(0, currentBalances.HPL);
+            currentBalances.CL = Math.max(0, currentBalances.CL);
+            currentBalances.RH = Math.max(0, currentBalances.RH);
+            currentBalances.CCL_Quota = Math.max(0, currentBalances.CCL_Quota);
+            
+            return currentBalances;
+        }
+
+        // --- UI Update Functions ---
+
+        /**
+         * Updates the balance display cards with current calculated balances.
+         */
+        function updateBalanceDisplay() {
+            const currentBalances = calculateCurrentBalances();
+            const balanceDisplay = document.getElementById('balance-display');
+            
+            const balanceData = [
+                { 
+                    type: 'EL', 
+                    label: 'Earned Leave', 
+                    value: currentBalances.EL, 
+                    max: 300,
+                    description: 'Max 300 days. Credits: 15 days every Jan 1 & Jul 1.',
+                    icon: '📅'
+                },
+                { 
+                    type: 'HPL', 
+                    label: 'Half Pay Leave', 
+                    value: currentBalances.HPL, 
+                    description: 'Credits: 10 days every Jan 1 & Jul 1.',
+                    icon: '⏳'
+                },
+                { 
+                    type: 'CL', 
+                    label: 'Casual Leave', 
+                    value: currentBalances.CL, 
+                    description: 'Annual 8 days. Credits: Jan 1.',
+                    icon: '🏖️'
+                },
+                { 
+                    type: 'RH', 
+                    label: 'Restricted Holiday', 
+                    value: currentBalances.RH, 
+                    description: 'Annual 2 days. Credits: Jan 1.',
+                    icon: '🎉'
+                },
+                { 
+                    type: 'CCL', 
+                    label: 'Child Care Leave', 
+                    value: currentBalances.CCL_Quota, 
+                    description: 'Lifetime quota: 730 days. For children up to 18 years.',
+                    icon: '👶'
+                },
+                { 
+                    type: 'ML', 
+                    label: 'Maternity Leave', 
+                    value: currentBalances.ML_Used, 
+                    description: 'Total used: 180 days per child (max 2 children).',
+                    icon: '🤰'
+                }
+            ];
+            
+            let balanceHTML = '';
+            
+            balanceData.forEach(balance => {
+                let statusClass = '';
+                let statusText = '';
+                
+                if (balance.type === 'EL' && balance.value > (balance.max * 0.8)) {
+                    statusClass = 'high-balance';
+                    statusText = ' (High)';
+                } else if (balance.type === 'CL' && balance.value === 0) {
+                    statusClass = 'no-balance';
+                    statusText = ' (Used All)';
+                } else if (balance.type === 'CCL' && balance.value < 100) {
+                    statusClass = 'low-balance';
+                    statusText = ' (Low)';
+                }
+                
+                balanceHTML += `
+                    <div class="balance-card">
+                        <div class="balance-icon">${balance.icon}</div>
+                        <div class="balance-value">${balance.value}</div>
+                        <div class="balance-label">${balance.label}${statusText}</div>
+                        <div class="balance-description">${balance.description}</div>
+                    </div>
+                `;
+            });
+            
+            balanceDisplay.innerHTML = balanceHTML;
+        }
+
+        /**
+         * Populates the transactions list table with all recorded transactions.
+         */
+        function updateTransactionsList() {
+            const transactionsList = document.getElementById('transactions-list');
+            
+            if (employeeData.leaveTransactions.length === 0) {
+                transactionsList.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #777;">
+                            No transactions recorded yet. Add a leave period or credit above.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort transactions by date (newest first) but keep original indices
+            const sortedTransactions = employeeData.leaveTransactions
+                .map((transaction, index) => ({ transaction, index }))
+                .sort((a, b) => {
+                    const dateA = a.transaction.startDate || a.transaction.creditDate;
+                    const dateB = b.transaction.startDate || b.transaction.creditDate;
+                    return new Date(dateB) - new Date(dateA);
+                });
+            
+            let transactionsHTML = '';
+            
+            sortedTransactions.forEach(item => {
+                const transaction = item.transaction;
+                const originalIndex = item.index; // Store the original index for deletion
+                
+                const isCredit = transaction.hasOwnProperty('creditDate');
+                const dateRange = isCredit 
+                    ? `Credit on ${formatDate(transaction.creditDate)}`
+                    : `${formatDate(transaction.startDate)} to ${formatDate(transaction.endDate)}`;
+                
+                const type = transaction.originalType || transaction.type;
+                let displayType = type;
+                if (transaction.originalType === 'CL_HALF') {
+                    const session = transaction.halfDaySession === 'FORENOON' ? 'Forenoon' : 'Afternoon';
+                    displayType = `CL (${session} - Half Day)`;
+                }
+                
+                let daysChange = transaction.days || 0;
+                let displayDays = '';
+                
+                if (isCredit) {
+                    displayDays = `<span style="color: #2ecc71;">+${daysChange}</span>`;
+                } else {
+                    if (type === 'COMMUTED_HPL') {
+                        displayDays = `<span style="color: #e74c3c;">-${daysChange} (HPL -${daysChange * 2})</span>`;
+                    } else if (daysChange === 0.5) {
+                        displayDays = `<span style="color: #e74c3c;">-0.5</span>`;
+                    } else {
+                        displayDays = `<span style="color: #e74c3c;">-${daysChange}</span>`;
+                    }
+                }
+                
+                transactionsHTML += `
+                    <tr>
+                        <td>${dateRange}</td>
+                        <td>${displayType}</td>
+                        <td style="text-align: right;">${displayDays}</td>
+                        <td class="hidden-mobile">${transaction.purpose || transaction.remark || '-'}</td>
+                        <td style="text-align: right;">
+                            <button onclick="deleteTransaction(${originalIndex})" class="delete-btn">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            transactionsList.innerHTML = transactionsHTML;
+        }
+
+        /**
+         * Updates all UI components with current data.
+         */
+        function updateUI() {
+            updateBalanceDisplay();
+            updateTransactionsList();
+            populateInitialForm();
+        }
+
+        /**
+         * Populates the initial balance form with current values.
+         */
+        function populateInitialForm() {
+            document.getElementById('initial-el').value = employeeData.initialBalance.EL;
+            document.getElementById('initial-hpl').value = employeeData.initialBalance.HPL;
+            document.getElementById('initial-cl').value = employeeData.initialBalance.CL;
+            document.getElementById('initial-rh').value = employeeData.initialBalance.RH;
+            document.getElementById('initial-ccl').value = employeeData.initialBalance.CCL_Quota;
+            document.getElementById('initial-ml').value = employeeData.initialBalance.ML_Used;
+        }
+
+        // --- Transaction Management ---
+
+        /**
+         * Deletes a transaction by index after user confirmation.
+         * @param {number} index The index of the transaction to delete.
+         */
+        async function deleteTransaction(index) {
+            const transaction = employeeData.leaveTransactions[index];
+            const transactionType = transaction.originalType || transaction.type;
+            const transactionDate = transaction.startDate || transaction.creditDate;
+            
+            const confirmed = await showConfirmation(
+                "Delete Transaction",
+                `Are you sure you want to delete this ${transactionType} transaction from ${formatDate(transactionDate)}?`
+            );
+            
+            if (confirmed) {
+                employeeData.leaveTransactions.splice(index, 1);
+                saveData();
+                updateUI();
+                showToast('Transaction deleted successfully.', 'success');
+            }
+        }
+
+        // --- Form Handlers ---
+
+        /**
+         * Handles the initial balance form submission.
+         * @param {Event} event The form submit event.
+         */
+        function handleInitialBalanceForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            // Update initial balances from form
+            employeeData.initialBalance.EL = parseInt(formData.get('EL')) || 0;
+            employeeData.initialBalance.HPL = parseInt(formData.get('HPL')) || 0;
+            employeeData.initialBalance.CL = parseInt(formData.get('CL')) || 0;
+            employeeData.initialBalance.RH = parseInt(formData.get('RH')) || 0;
+            employeeData.initialBalance.CCL_Quota = parseInt(formData.get('CCL_Quota')) || 0;
+            employeeData.initialBalance.ML_Used = parseInt(formData.get('ML_Used')) || 0;
+            
+            // Validate EL doesn't exceed 300
+            if (employeeData.initialBalance.EL > 300) {
+                showToast('Warning: EL balance exceeds maximum of 300 days.', 'error');
+                employeeData.initialBalance.EL = 300;
+            }
+            
+            saveData();
+            updateUI();
+            showToast('Initial balances updated successfully!', 'success');
+        }
+
+        /**
+         * Handles the leave credit form submission.
+         * @param {Event} event The form submit event.
+         */
+        function handleLeaveCreditForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const type = formData.get('type');
+            const creditDate = formData.get('creditDate');
+            const remark = formData.get('remark');
+            
+            if (!type || !creditDate) {
+                showToast('Please select a leave type and date.', 'error');
+                return;
+            }
+            
+            // Determine the number of days to credit based on type
+            let days = 0;
+            switch(type) {
+                case 'EL':
+                    days = 15;
+                    break;
+                case 'HPL':
+                    days = 10;
+                    break;
+                case 'CL':
+                    days = 8;
+                    break;
+                case 'RH':
+                    days = 2;
+                    break;
+                default:
+                    days = 0;
+            }
+            
+            // Add the credit transaction
+            employeeData.leaveTransactions.push({
+                type: type,
+                creditDate: creditDate,
+                days: days,
+                remark: remark || `${type} Credit`
+            });
+            
+            saveData();
+            updateUI();
+            event.target.reset();
+            showToast(`${type} credit of ${days} days recorded successfully!`, 'success');
+        }
+
+        /**
+         * Handles the leave transaction form submission.
+         * @param {Event} event The form submit event.
+         */
+        function handleLeaveTransactionForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const type = formData.get('type');
+            const startDate = formData.get('startDate');
+            const endDate = formData.get('endDate');
+            const purpose = formData.get('purpose');
+            const halfDaySession = formData.get('halfDaySession');
+            
+            // Basic validation
+            if (!type || !startDate) {
+                showToast('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            // For half-day CL, we need to ensure end date is set correctly
+            let effectiveEndDate = endDate;
+            if (type === 'CL_HALF') {
+                // For half-day CL, end date should be the same as start date
+                effectiveEndDate = startDate;
+            } else if (!endDate) {
+                showToast('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            // Validate date range
+            if (new Date(startDate) > new Date(effectiveEndDate)) {
+                showToast('End date must be after start date.', 'error');
+                return;
+            }
+            
+            let days = 0;
+            let transactionType = type;
+            
+            // Calculate days based on leave type
+            if (type === 'EL' || type === 'HPL' || type === 'CCL' || type === 'ML' || type === 'COMMUTED_HPL') {
+                days = calculateDays(startDate, effectiveEndDate);
+            } else if (type.startsWith('CL_') || type === 'RH') {
+                days = calculateWorkingDays(startDate, effectiveEndDate, type, halfDaySession);
+                
+                // Normalize CL types for storage and display
+                if (type.startsWith('CL_')) {
+                    transactionType = 'CL'; // Store all CL types as 'CL' for consistency
+                }
+            }
+            
+            // For Commuted Leave, we need to check if there's enough HPL (2x days)
+            if (type === 'COMMUTED_HPL') {
+                const currentBalances = calculateCurrentBalances();
+                const requiredHPL = days * 2;
+                
+                if (currentBalances.HPL < requiredHPL) {
+                    showToast(`Insufficient HPL balance. Required: ${requiredHPL} days, Available: ${currentBalances.HPL} days.`, 'error');
+                    return;
+                }
+            }
+            
+            // For other leave types, check if there's sufficient balance
+            if (type !== 'COMMUTED_HPL' && type !== 'ML') {
+                const currentBalances = calculateCurrentBalances();
+                
+                if (currentBalances.CL < days) {
+                    showToast(`Insufficient CL balance. Required: ${days} days, Available: ${currentBalances.CL} days.`, 'error');
+                    return;
+                }
+            }
+            
+            // For CCL, check against the lifetime quota
+            if (type === 'CCL') {
+                const currentBalances = calculateCurrentBalances();
+                
+                if (currentBalances.CCL_Quota < days) {
+                    showToast(`Insufficient CCL quota. Required: ${days} days, Remaining Quota: ${currentBalances.CCL_Quota} days.`, 'error');
+                    return;
+                }
+            }
+            
+            // Create transaction object with additional info for half-day CL
+            const transaction = {
+                type: transactionType,
+                startDate: startDate,
+                endDate: effectiveEndDate,
+                days: days,
+                purpose: purpose || `${type} Leave`
+            };
+            
+            // Add half-day session info for display purposes
+            if (type === 'CL_HALF') {
+                transaction.originalType = type; // Store the original type for display
+                transaction.halfDaySession = halfDaySession;
+                transaction.purpose = (purpose || 'Casual Leave') + ` (${halfDaySession === 'FORENOON' ? 'Forenoon' : 'Afternoon'} - Half Day)`;
+            }
+            
+            // Add the transaction
+            employeeData.leaveTransactions.push(transaction);
+            
+            saveData();
+            updateUI();
+            event.target.reset();
+            
+            // Reset the half-day container
+            document.getElementById('half-day-container').style.display = 'none';
+            document.getElementById('end-date').disabled = false;
+            
+            let displayType = type;
+            if (type === 'CL_HALF') displayType = 'Casual Leave (Half Day)';
+            
+            showToast(`${displayType} of ${days} days recorded successfully!`, 'success');
+        }
+
+        // --- Mobile Enhancements ---
+
+        /**
+         * Sets up mobile-specific enhancements for better touch experience
+         */
+        function setupMobileEnhancements() {
+            // Better touch handling for interactive elements
+            document.querySelectorAll('.section-header, .action-btn, .submit-btn, .balance-card').forEach(element => {
+                element.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    this.click();
+                });
+            });
+            
+            // Prevent double-tap zoom on interactive elements
+            document.querySelectorAll('button, .balance-card, .section-header').forEach(element => {
+                element.style.touchAction = 'manipulation';
+            });
+        }
+
+        // --- Initialization ---
+
+        /**
+         * Initializes the application by setting up event listeners and loading data.
+         */
+        function init() {
+            // Load data from localStorage
+            loadData();
+            
+            // Set up form event listeners
+            document.getElementById('initial-balance-form').addEventListener('submit', handleInitialBalanceForm);
+            document.getElementById('leave-credit-form').addEventListener('submit', handleLeaveCreditForm);
+            document.getElementById('leave-transaction-form').addEventListener('submit', handleLeaveTransactionForm);
+            
+            // Add event listeners for half-day functionality
+            document.getElementById('leave-type').addEventListener('change', toggleHalfDaySession);
+            document.getElementById('start-date').addEventListener('change', function() {
+                // When start date changes, update end date for half-day CL
+                const leaveType = document.getElementById('leave-type').value;
+                if (leaveType === 'CL_HALF') {
+                    document.getElementById('end-date').value = this.value;
+                }
+            });
+            
+            // Set default dates to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('credit-date').value = today;
+            document.getElementById('start-date').value = today;
+            document.getElementById('end-date').value = today;
+            
+            // Set up mobile enhancements
+            setupMobileEnhancements();
+            
+            // Initialize the UI
+            updateUI();
+            
+            // Show welcome message
+            setTimeout(() => {
+                if (employeeData.leaveTransactions.length === 0) {
+                    showToast('Welcome! Start by setting your initial leave balances.', 'success');
+                }
+            }, 1000);
+        }
+
+        // Start the application when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

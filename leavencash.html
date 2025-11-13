@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Encashment Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0437F2;
+            --secondary-color: #42a5f5;
+            --accent-color: #ef5350;
+            --light-color: #f5f5f5;
+            --dark-color: #424242;
+            --success-color: #66bb6a;
+            --warning-color: #ffca28;
+            --border-radius: 4px;
+            --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            line-height: 1.4;
+            min-height: 100vh;
+            padding: 8px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .main-header {
+            background: #ffffff;
+            color: var(--primary-color);
+            padding: 10px 0;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .main-header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+        
+        .main-header .subtitle {
+            font-size: 0.85rem;
+            color: var(--dark-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 5px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .section-header {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--light-color);
+        }
+        
+        .section-header h2 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+        
+        .section-header p {
+            color: var(--dark-color);
+            font-size: 0.85rem;
+        }
+        
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: 40% 58%;
+            gap: 12px;
+        }
+        
+        .input-group {
+            margin-bottom: 8px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--dark-color);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            background-color: white;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+            color: #333;
+            border-radius: 3px;
+            font-weight: 400;
+        }
+        
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px rgba(4, 55, 242, 0.2);
+        }
+        
+        .input-group input::placeholder {
+            color: #9e9e9e;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            background: var(--light-color);
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            min-width: 90px;
+        }
+        
+        .radio-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(4, 55, 242, 0.05);
+        }
+        
+        .radio-option input {
+            margin-right: 6px;
+            width: 14px;
+            height: 14px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .submit-btn:hover {
+            background-color: #032bcf;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+        
+        .submit-btn i {
+            margin-right: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .info-box {
+            background: rgba(4, 55, 242, 0.05);
+            border-left: 3px solid var(--primary-color);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.85rem;
+            color: var(--dark-color);
+        }
+        
+        .info-box strong {
+            color: var(--primary-color);
+        }
+        
+        .results-container {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .balance-card {
+            background: white;
+            border-radius: 4px;
+            padding: 15px 10px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .balance-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+        }
+        
+        .balance-card:nth-child(1)::before {
+            background: #4caf50;
+        }
+        
+        .balance-card:nth-child(2)::before {
+            background: #0437F2;
+        }
+        
+        .balance-card:nth-child(3)::before {
+            background: #ff9800;
+        }
+        
+        .balance-card:nth-child(4)::before {
+            background: #f44336;
+        }
+        
+        .balance-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .balance-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--primary-color);
+        }
+        
+        .balance-label {
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+        
+        .balance-description {
+            font-size: 0.75rem;
+            color: #757575;
+            font-weight: 400;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: var(--dark-color);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .result-value {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .highlight-section {
+            background: rgba(4, 55, 242, 0.03);
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+            margin: 12px 0;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            padding: 10px 12px;
+            color: white;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .blue-btn {
+            background-color: var(--primary-color);
+        }
+        
+        .blue-btn:hover {
+            background-color: #032bcf;
+        }
+        
+        .action-btn i {
+            margin-right: 6px;
+            width: 14px;
+            height: 14px;
+            font-size: 0.8rem;
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            color: #757575;
+        }
+        
+        .disclaimer {
+            font-size: 0.75rem;
+            line-height: 1.3;
+            margin-bottom: 5px;
+            font-weight: 400;
+        }
+        
+        .creator {
+            font-size: 0.7rem;
+            font-style: italic;
+            color: #9e9e9e;
+        }
+        
+        #toast-message {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            max-width: 300px;
+        }
+        
+        .toast {
+            padding: 12px 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast-success {
+            background-color: var(--success-color);
+        }
+        
+        .toast-error {
+            background-color: var(--accent-color);
+        }
+        
+        .toast i {
+            margin-right: 8px;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .calculation-steps {
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--dark-color);
+        }
+        
+        @media (max-width: 992px) {
+            .grid-2-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-header h1 {
+                font-size: 1.4rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 6px;
+            }
+            
+            .section {
+                padding: 12px;
+            }
+            
+            .main-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .balance-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            body {
+                padding: 5px;
+            }
+            
+            .section {
+                padding: 10px;
+            }
+            
+            .main-header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .balance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-btn {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="main-header">
+            <h1>Leave Encashment Calculator</h1>
+            <p class="subtitle">Calculated as per CCS (Leave) Rules</p>
+        </div>
+
+        <div id="toast-message"></div>
+
+        <div class="grid-2-col">
+            <div class="input-column">
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Employee Details</h2>
+                        <p>Enter basic employee information</p>
+                    </div>
+                    <div class="grid-2-col">
+                        <div class="input-group">
+                            <label for="employeeName">Employee Name</label>
+                            <input type="text" id="employeeName" placeholder="Enter full name">
+                        </div>
+                        <div class="input-group">
+                            <label for="designation">Designation</label>
+                            <input type="text" id="designation" placeholder="Enter designation">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Service Details</h2>
+                        <p>Select encashment type and service period</p>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Type of Encashment</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="retirement" name="encashmentType" value="retirement" checked>
+                                <label for="retirement">Retirement</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="resignation" name="encashmentType" value="resignation">
+                                <label for="resignation">Resignation</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ltc" name="encashmentType" value="ltc">
+                                <label for="ltc">LTC</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="servicePeriodSection">
+                        <div class="grid-2-col">
+                            <div class="input-group">
+                                <label for="dateOfJoining">Date of Joining Service</label>
+                                <input type="date" id="dateOfJoining">
+                            </div>
+                            <div class="input-group">
+                                <label for="dateOfExit">Date of Exit</label>
+                                <input type="date" id="dateOfExit">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="ltcDaysSection" class="hidden">
+                        <div class="grid-2-col">
+                            <div class="input-group">
+                                <label for="ltcDaysToEncash">No of Days to Encash (Max 10)</label>
+                                <input type="number" id="ltcDaysToEncash" min="0" max="10" value="10" placeholder="Enter days (max 10)">
+                            </div>
+                            <div class="input-group">
+                                <label for="ltcLeaveAvailed">Leave Availed with LTC (Days)</label>
+                                <input type="number" id="ltcLeaveAvailed" min="0" value="0" placeholder="Enter leave days availed">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Emoluments & Leave Details</h2>
+                        <p>Enter salary and leave balance information</p>
+                    </div>
+                    
+                    <div class="grid-2-col">
+                        <div class="input-group">
+                            <label for="basicPay">Basic Pay (₹)</label>
+                            <input type="number" id="basicPay" min="0" placeholder="Enter basic pay">
+                        </div>
+                        <div class="input-group">
+                            <label for="daPercentage">DA Percentage (%)</label>
+                            <input type="number" id="daPercentage" min="0" max="100" step="0.01" placeholder="Enter DA percentage">
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2-col">
+                        <div class="input-group">
+                            <label for="earnedLeave">EL at Credit</label>
+                            <input type="number" id="earnedLeave" min="0" placeholder="Enter EL days">
+                        </div>
+                        <div id="hplInputGroup" class="input-group">
+                            <label for="halfPayLeave">HPL at Credit</label>
+                            <input type="number" id="halfPayLeave" min="0" placeholder="Enter HPL days">
+                        </div>
+                    </div>
+                    
+                    <button id="calculateBtn" class="submit-btn">
+                        <i class="fas fa-calculator"></i> Calculate Leave Encashment
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-column">
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Calculation Results</h2>
+                        <p>Leave encashment calculation details</p>
+                    </div>
+                    
+                    <div id="resultsContainer" class="results-container">
+                        <div class="info-box">
+                            <strong>Welcome to the Leave Encashment Calculator</strong>
+                            <p class="mt-1">Please enter your details and click "Calculate Leave Encashment" to see results.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="exportPdfBtn" class="action-btn blue-btn hidden">
+                            <i class="fas fa-file-pdf"></i> Export to PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="disclaimer">
+                Disclaimer: This calculator provides estimates based on the Central Civil Services Leave Rules. Actual leave encashment amounts may vary based on specific circumstances and official interpretations.
+            </div>
+            <div class="creator">
+                © 2025 Advanced Leave Encashment Calculator for Central Government Employees
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const encashmentTypeRadios = document.querySelectorAll('input[name="encashmentType"]');
+            const servicePeriodSection = document.getElementById('servicePeriodSection');
+            const ltcDaysSection = document.getElementById('ltcDaysSection');
+            const hplInputGroup = document.getElementById('hplInputGroup');
+
+            // Toast notification function
+            function showToast(message, type = 'success') {
+                const toastElement = document.getElementById('toast-message');
+                const colorClass = type === 'success' ? 'toast-success' : 'toast-error';
+                
+                toastElement.innerHTML = `
+                    <div class="toast ${colorClass}">
+                        ${type === 'success' ? 
+                            '<i class="fas fa-check-circle"></i>' : 
+                            '<i class="fas fa-exclamation-circle"></i>'
+                        }
+                        ${message}
+                    </div>
+                `;
+                toastElement.style.opacity = '1';
+
+                setTimeout(() => {
+                    toastElement.style.opacity = '0';
+                }, 4000);
+            }
+            
+            function showError(message) {
+                resultsContainer.innerHTML = `
+                    <div class="info-box" style="border-left-color: #ef5350; background: rgba(239, 83, 80, 0.05);">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Error</strong>
+                        <p class="mt-1">${message}</p>
+                    </div>
+                `;
+                exportPdfBtn.classList.add('hidden');
+            }
+
+            // Add event listeners for encashment type changes
+            encashmentTypeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'ltc') {
+                        servicePeriodSection.classList.add('hidden');
+                        ltcDaysSection.classList.remove('hidden');
+                        hplInputGroup.classList.add('hidden');
+                    } else {
+                        servicePeriodSection.classList.remove('hidden');
+                        ltcDaysSection.classList.add('hidden');
+                        hplInputGroup.classList.remove('hidden');
+                    }
+                });
+            });
+
+            calculateBtn.addEventListener('click', calculateLeaveEncashment);
+            exportPdfBtn.addEventListener('click', exportToPdf);
+
+            // === Core Calculation Logic ===
+
+            function calculateLeaveEncashment() {
+                // Get employee details
+                const employeeName = document.getElementById('employeeName').value.trim();
+                const designation = document.getElementById('designation').value.trim();
+                // Get encashment type
+                const encashmentType = document.querySelector('input[name="encashmentType"]:checked').value;
+                // Get emoluments details
+                const basicPay = parseFloat(document.getElementById('basicPay').value) || 0;
+                const daPercentage = parseFloat(document.getElementById('daPercentage').value) || 0;
+                // Get leave details
+                const earnedLeave = parseInt(document.getElementById('earnedLeave').value) || 0;
+                // Only get HPL if not hidden (i.e., not LTC)
+                const halfPayLeave = encashmentType !== 'ltc' ? (parseInt(document.getElementById('halfPayLeave').value) || 0) : 0;
+
+                // Validate common inputs
+                if (!employeeName || employeeName === "") {
+                    showError("Please enter employee name.");
+                    return;
+                }
+                if (!designation || designation === "") {
+                    showError("Please enter designation.");
+                    return;
+                }
+                if (basicPay <= 0) {
+                    showError("Please enter a valid basic pay value greater than zero.");
+                    return;
+                }
+                if (daPercentage < 0) {
+                    showError("Please enter a valid DA percentage value (0 or greater).");
+                    return;
+                }
+                if (earnedLeave < 0) {
+                    showError("Please enter a valid Earned Leave days value (0 or greater).");
+                    return;
+                }
+                if (encashmentType !== 'ltc' && halfPayLeave < 0) {
+                    showError("Please enter a valid Half Pay Leave days value (0 or greater).");
+                    return;
+                }
+
+                // Initialize variables for calculation
+                let elDaysToEncash = 0;
+                let hplDaysToEncash = 0;
+                let elEncashmentAmount = 0;
+                let hplEncashmentAmount = 0;
+                let totalEncashmentAmount = 0;
+                let calculationSteps = [];
+                let notes = [];
+                let years = 0;
+                let months = 0;
+                let totalMonths = 0;
+                let dateOfJoining = null;
+                let dateOfExit = null;
+
+                if (encashmentType === 'ltc') {
+                    // LTC case: Fixed 10 days EL encashment, HPL not encashed
+                    const ltcDaysInput = document.getElementById('ltcDaysToEncash');
+                    const ltcLeaveAvailedInput = document.getElementById('ltcLeaveAvailed');
+                    let ltcDaysRequested = parseInt(ltcDaysInput.value) || 0;
+                    let ltcLeaveAvailed = parseInt(ltcLeaveAvailedInput.value) || 0;
+                    
+                    ltcDaysRequested = Math.min(ltcDaysRequested, 10); // Cap at 10
+                    ltcDaysInput.value = ltcDaysRequested; // Update input to reflect cap
+
+                    calculationSteps.push("Eligibility: 10 days of Earned Leave encashment allowed on LTC (max 10 days)");
+                    calculationSteps.push(`Earned Leave to Encash: ${ltcDaysRequested} days (fixed for LTC)`);
+
+                    if (ltcDaysRequested > earnedLeave) {
+                         showError(`Requested LTC days (${ltcDaysRequested}) exceed available Earned Leave (${earnedLeave}).`);
+                         return;
+                    }
+
+                    // Validate minimum 30 days EL balance requirement
+                    const remainingEL = earnedLeave - ltcDaysRequested - ltcLeaveAvailed;
+                    if (remainingEL < 30) {
+                        showError(`After encashment (${ltcDaysRequested} days) and availing leave (${ltcLeaveAvailed} days), only ${remainingEL} days of EL will remain. A minimum of 30 days EL balance is required after LTC.`);
+                        return;
+                    }
+
+                    elDaysToEncash = ltcDaysRequested;
+                    hplDaysToEncash = 0;
+
+                    // Calculate emoluments
+                    const daAmount = basicPay * (daPercentage / 100);
+                    const totalEmoluments = basicPay + daAmount;
+
+                    elEncashmentAmount = (totalEmoluments / 30) * elDaysToEncash;
+                    hplEncashmentAmount = 0;
+                    totalEncashmentAmount = elEncashmentAmount;
+
+                    calculationSteps.push(`Formula for EL Encashment on LTC: (Pay + DA) / 30 * Days`);
+                    calculationSteps.push(`EL Calculation: Rs.${totalEmoluments.toLocaleString()} / 30 * ${elDaysToEncash} = Rs.${elEncashmentAmount.toLocaleString()}`);
+                    calculationSteps.push(`Total Encashment: Rs.${totalEncashmentAmount.toLocaleString()}`);
+
+                    // Add notes about unused leaves
+                    const unusedEL = earnedLeave - elDaysToEncash - ltcLeaveAvailed;
+                    if (unusedEL > 0) {
+                        notes.push(`${unusedEL} days of Earned Leave will remain after encashment and availed leave.`);
+                    }
+
+                } else {
+                    // Retirement or Resignation cases
+                    // Get dates
+                    dateOfJoining = new Date(document.getElementById('dateOfJoining').value);
+                    dateOfExit = new Date(document.getElementById('dateOfExit').value);
+
+                    // Validate dates for non-LTC
+                    if (isNaN(dateOfJoining.getTime()) || document.getElementById('dateOfJoining').value === "") {
+                        showError("Please enter a valid date of joining.");
+                        return;
+                    }
+                    if (isNaN(dateOfExit.getTime()) || document.getElementById('dateOfExit').value === "") {
+                        showError("Please enter a valid date of exit.");
+                        return;
+                    }
+
+                    // Calculate service period
+                    const servicePeriod = calculateServicePeriod(dateOfJoining, dateOfExit);
+                    years = servicePeriod.years;
+                    months = servicePeriod.months;
+                    totalMonths = years * 12 + months;
+
+                    // Calculate emoluments
+                    const daAmount = basicPay * (daPercentage / 100);
+                    const totalEmoluments = basicPay + daAmount;
+
+                    if (encashmentType === 'retirement') {
+                        // Retirement case: Full EL encashment, then HPL if needed up to 300 days
+                        calculationSteps.push("Eligibility: Full leave encashment allowed on retirement");
+                        calculationSteps.push(`Total Earned Leave Available: ${earnedLeave} days`);
+                        calculationSteps.push(`Total Half Pay Leave Available: ${halfPayLeave} days`);
+
+                        if (earnedLeave >= 300) {
+                            // If EL alone is 300 or more days
+                            elDaysToEncash = 300;
+                            hplDaysToEncash = 0;
+                            calculationSteps.push(`Using only Earned Leave: 300 days (maximum limit reached)`);
+                        } else {
+                            // EL is less than 300 days, use HPL to make up the difference
+                            elDaysToEncash = earnedLeave;
+                            const remainingDays = 300 - earnedLeave;
+                            hplDaysToEncash = Math.min(halfPayLeave, remainingDays);
+                            calculationSteps.push(`Earned Leave Used: ${earnedLeave} days`);
+                            calculationSteps.push(`Additional days needed: ${remainingDays} days`);
+                            calculationSteps.push(`Half Pay Leave Used: ${hplDaysToEncash} days (out of ${halfPayLeave} available)`);
+                        }
+
+                        // Calculate amounts
+                        elEncashmentAmount = (totalEmoluments / 30) * elDaysToEncash;
+                        hplEncashmentAmount = (totalEmoluments / 60) * hplDaysToEncash;
+                        totalEncashmentAmount = elEncashmentAmount + hplEncashmentAmount;
+
+                        calculationSteps.push(`Formula for EL Encashment: (Pay + DA) / 30 * EL Days`);
+                        calculationSteps.push(`EL Calculation: Rs.${totalEmoluments.toLocaleString()} / 30 * ${elDaysToEncash} = Rs.${elEncashmentAmount.toLocaleString()}`);
+                        calculationSteps.push(`Formula for HPL Encashment: (Pay + DA) / 60 * HPL Days`);
+                        calculationSteps.push(`HPL Calculation: Rs.${totalEmoluments.toLocaleString()} / 60 * ${hplDaysToEncash} = Rs.${hplEncashmentAmount.toLocaleString()}`);
+                        calculationSteps.push(`Total Encashment: Rs.${elEncashmentAmount.toLocaleString()} + Rs.${hplEncashmentAmount.toLocaleString()} = Rs.${totalEncashmentAmount.toLocaleString()}`);
+
+                        // Add notes about unused leaves
+                        const unusedEL = earnedLeave - elDaysToEncash;
+                        const unusedHPL = halfPayLeave - hplDaysToEncash;
+                        if (unusedEL > 0) {
+                            notes.push(`${unusedEL} days of Earned Leave will lapse.`);
+                        }
+                        if (unusedHPL > 0) {
+                            notes.push(`${unusedHPL} days of Half Pay Leave will lapse.`);
+                        }
+                    } else { // Resignation
+                        // Resignation case: Only 50% of EL encashment allowed, HPL lapses
+                        calculationSteps.push("Eligibility: Only 50% of Earned Leave encashment allowed on resignation");
+                        calculationSteps.push(`Total Earned Leave Available: ${earnedLeave} days`);
+                        calculationSteps.push(`Half Pay Leave Lapses: ${halfPayLeave} days (not encashable)`);
+
+                        elDaysToEncash = Math.floor(earnedLeave * 0.5);
+                        hplDaysToEncash = 0;
+
+                        elEncashmentAmount = (totalEmoluments / 30) * elDaysToEncash;
+                        hplEncashmentAmount = 0;
+                        totalEncashmentAmount = elEncashmentAmount;
+
+                        calculationSteps.push(`Earned Leave to Encash: ${elDaysToEncash} days (50% of ${earnedLeave})`);
+                        calculationSteps.push(`Formula for EL Encashment: (Pay + DA) / 30 * EL Days`);
+                        calculationSteps.push(`EL Calculation: Rs.${totalEmoluments.toLocaleString()} / 30 * ${elDaysToEncash} = Rs.${elEncashmentAmount.toLocaleString()}`);
+                        calculationSteps.push(`Total Encashment: Rs.${totalEncashmentAmount.toLocaleString()}`);
+
+                        // Add notes about unused leaves
+                        const unusedEL = earnedLeave - elDaysToEncash;
+                        if (unusedEL > 0) {
+                            notes.push(`${unusedEL} days of Earned Leave will lapse.`);
+                        }
+                        notes.push(`${halfPayLeave} days of Half Pay Leave will lapse.`);
+                    }
+                }
+
+                // Display results
+                displayResults(
+                    employeeName,
+                    designation,
+                    encashmentType,
+                    years,
+                    months,
+                    totalMonths,
+                    basicPay,
+                    daPercentage,
+                    earnedLeave,
+                    halfPayLeave,
+                    elDaysToEncash,
+                    hplDaysToEncash,
+                    elEncashmentAmount,
+                    hplEncashmentAmount,
+                    totalEncashmentAmount,
+                    calculationSteps,
+                    notes
+                );
+
+                // Show export button
+                exportPdfBtn.classList.remove('hidden');
+                showToast("Leave encashment calculated successfully!", "success");
+            }
+
+            function calculateServicePeriod(joiningDate, exitDate) {
+                let years = exitDate.getFullYear() - joiningDate.getFullYear();
+                let months = exitDate.getMonth() - joiningDate.getMonth();
+
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+
+                // Adjust for day of month
+                if (exitDate.getDate() < joiningDate.getDate()) {
+                    months--;
+                    if (months < 0) {
+                        years--;
+                        months += 12;
+                    }
+                }
+
+                return { years, months };
+            }
+
+            function displayResults(
+                employeeName,
+                designation,
+                encashmentType,
+                years,
+                months,
+                totalMonths,
+                basicPay,
+                daPercentage,
+                earnedLeave,
+                halfPayLeave,
+                elDaysToEncash,
+                hplDaysToEncash,
+                elEncashmentAmount,
+                hplEncashmentAmount,
+                totalEncashmentAmount,
+                calculationSteps,
+                notes
+            ) {
+                // Format encashment type for display
+                const encashmentTypeDisplay = 
+                    encashmentType === 'retirement' ? 'Retirement' : 
+                    encashmentType === 'resignation' ? 'Resignation' : 
+                    'LTC';
+
+                resultsContainer.innerHTML = `
+                    <div class="balance-grid">
+                        <div class="balance-card">
+                            <div class="balance-icon">
+                                <i class="fas fa-calendar-check" style="color: #4caf50;"></i>
+                            </div>
+                            <div class="balance-value">${elDaysToEncash}</div>
+                            <div class="balance-label">EL Days Encashed</div>
+                            <div class="balance-description">Earned Leave</div>
+                        </div>
+                        <div class="balance-card">
+                            <div class="balance-icon">
+                                <i class="fas fa-calendar-minus" style="color: #0437F2;"></i>
+                            </div>
+                            <div class="balance-value">${hplDaysToEncash}</div>
+                            <div class="balance-label">HPL Days Encashed</div>
+                            <div class="balance-description">Half Pay Leave</div>
+                        </div>
+                        <div class="balance-card">
+                            <div class="balance-icon">
+                                <i class="fas fa-rupee-sign" style="color: #ff9800;"></i>
+                            </div>
+                            <div class="balance-value">₹${totalEncashmentAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            <div class="balance-label">Total Amount</div>
+                            <div class="balance-description">Leave Encashment</div>
+                        </div>
+                        <div class="balance-card">
+                            <div class="balance-icon">
+                                <i class="fas fa-file-invoice-dollar" style="color: #f44336;"></i>
+                            </div>
+                            <div class="balance-value">${encashmentTypeDisplay}</div>
+                            <div class="balance-label">Encashment Type</div>
+                            <div class="balance-description">${encashmentType === 'ltc' ? 'LTC' : 'Service'}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-header">
+                            <h2>Employee Details</h2>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Employee Name</span>
+                            <span class="result-value">${employeeName}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Designation</span>
+                            <span class="result-value">${designation}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Encashment Type</span>
+                            <span class="result-value">${encashmentTypeDisplay}</span>
+                        </div>
+                        ${encashmentType !== 'ltc' ? `
+                            <div class="result-item">
+                                <span class="result-label">Service Period</span>
+                                <span class="result-value">${years} years ${months} months</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="section">
+                        <div class="section-header">
+                            <h2>Emoluments & Leave Details</h2>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Basic Pay</span>
+                            <span class="result-value">₹${basicPay.toLocaleString()}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">DA Percentage</span>
+                            <span class="result-value">${daPercentage}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Earned Leave Balance</span>
+                            <span class="result-value">${earnedLeave} days</span>
+                        </div>
+                        ${encashmentType !== 'ltc' ? `
+                            <div class="result-item">
+                                <span class="result-label">Half Pay Leave Balance</span>
+                                <span class="result-value">${halfPayLeave} days</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="section">
+                        <div class="section-header">
+                            <h2>Encashment Details</h2>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">EL Days Encashed</span>
+                            <span class="result-value">${elDaysToEncash} days</span>
+                        </div>
+                        ${encashmentType !== 'ltc' ? `
+                            <div class="result-item">
+                                <span class="result-label">HPL Days Encashed</span>
+                                <span class="result-value">${hplDaysToEncash} days</span>
+                            </div>
+                        ` : ''}
+                        <div class="result-item">
+                            <span class="result-label">EL Encashment Amount</span>
+                            <span class="result-value">₹${elEncashmentAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        ${encashmentType !== 'ltc' ? `
+                            <div class="result-item">
+                                <span class="result-label">HPL Encashment Amount</span>
+                                <span class="result-value">₹${hplEncashmentAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                        ` : ''}
+                        <div class="result-item" style="background-color: rgba(102, 187, 106, 0.1); padding: 12px; border-radius: 4px; margin-top: 8px;">
+                            <span class="result-label" style="font-size: 1rem; font-weight: 700;">Total Encashment Amount</span>
+                            <span class="result-value" style="font-size: 1.1rem; font-weight: 700; color: #43a047;">₹${totalEncashmentAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                    </div>
+
+                    <div class="calculation-steps">
+                        <div class="section-header">
+                            <h2>Calculation Steps</h2>
+                        </div>
+                        ${calculationSteps.map((step, index) => `
+                            <div class="step">
+                                <div class="step-number">${index + 1}</div>
+                                <div class="step-content">${step}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${notes.length > 0 ? `
+                        <div class="highlight-section">
+                            <div class="section-header">
+                                <h2>Important Notes</h2>
+                            </div>
+                            <ul style="padding-left: 15px; margin: 8px 0;">
+                                ${notes.map(note => `<li style="margin-bottom: 5px;">${note}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            function exportToPdf() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 12;
+                let yPos = margin;
+
+                // Title
+                doc.setFontSize(18);
+                doc.setTextColor(4, 55, 242);
+                doc.text('Leave Encashment Calculation', pageWidth / 2, yPos, { align: 'center' });
+                yPos += 8;
+
+                // Date
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                const today = new Date();
+                doc.text(`Generated on: ${today.toLocaleDateString()}`, pageWidth / 2, yPos, { align: 'center' });
+                yPos += 12;
+
+                // Get content from results container
+                const content = resultsContainer;
+
+                // Use html2canvas to capture the content
+                html2canvas(content, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgWidth = pageWidth - margin * 2;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                    // Add image to PDF
+                    doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
+
+                    // Save the PDF
+                    doc.save('Leave_Encashment_Calculation.pdf');
+                    showToast("PDF exported successfully!", "success");
+                });
+            }
+        });
+    </script>
+</body>
+</html>

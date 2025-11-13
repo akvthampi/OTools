@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digital File Index</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --info-color: #17a2b8;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --highlight-color: #f07305;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--light-color);
+      color: var(--dark-color);
+      line-height: 1.6;
+      padding: 0; 
+      margin: 0;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: none; 
+      width: 100%;
+      margin: 0 auto;
+      background: white;
+      padding: 30px; 
+      box-shadow: none; 
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--primary-color);
+      background-color: #f1f1f1; 
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .highlight {
+      color: var(--highlight-color);
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(230, 126, 34, 0.5);
+      margin: 0 2px;
+    }
+    
+    .app-description {
+      margin-top: 5px;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--secondary-color);
+      border: 1px solid transparent;
+      border-bottom: none;
+      transition: all 0.3s ease;
+    }
+    
+    .tab.active {
+      color: var(--primary-color);
+      border-color: #dee2e6 #dee2e6 white;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 15px 30px; 
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s;
+      margin-right: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .btn-warning {
+        background-color: var(--warning-color);
+        color: var(--dark-color);
+    }
+    
+    .btn-success {
+        background-color: var(--success-color);
+        color: white;
+    }
+    
+    .btn-info {
+        background-color: var(--info-color);
+        color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+    
+    .search-box {
+        margin-bottom: 20px;
+    }
+
+    /* Table styles for full width and font optimization */
+    .table-container {
+        overflow-x: auto;
+        padding: 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: "Arial Narrow", Arial, sans-serif; 
+    }
+
+    th, td {
+        padding: 8px 10px; 
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.9rem; 
+        white-space: nowrap; 
+    }
+
+    /* Allow subject column to wrap and take up maximum space */
+    td:nth-child(4) {
+        white-space: normal;
+        word-break: break-word;
+        max-width: 300px;
+        width: 100%;
+    }
+
+    th {
+        background-color: var(--light-color);
+        font-weight: 700;
+        color: var(--dark-color);
+        position: sticky;
+        top: 0;
+    }
+
+    .actions-cell {
+        display: flex;
+        gap: 5px;
+    }
+
+    .action-btn {
+        padding: 4px 8px; 
+        font-size: 0.75rem;
+    }
+    
+    .filter-controls {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .utility-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding-top: 15px;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .error {
+      color: var(--danger-color);
+      font-size: 0.85rem;
+      margin-top: 4px;
+      display: none;
+    }
+    
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: white;
+        background-color: var(--success-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+
+    .notification.show {
+        display: block;
+        opacity: 1;
+    }
+    
+    .notification.error {
+        background-color: var(--danger-color);
+    }
+
+    /* Print styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-section, #print-section * {
+        visibility: visible;
+      }
+      #print-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 15px;
+      }
+      .actions-cell, .no-print {
+        display: none !important;
+      }
+      table, th, td {
+        border: 1px solid #000;
+        font-family: "Arial Narrow", Arial, sans-serif;
+        font-size: 10pt;
+        white-space: normal;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <span class="highlight"><i class="fas fa-book"></i></span>
+        <span class="highlight">&nbsp;D</span>igital 
+        <span class="highlight">&nbsp;F</span>ile
+        <span class="highlight">&nbsp;I</span>ndex 
+      </h1>
+      <p class="app-description">Tool for tracking file status, location, and history.</p>
+    </header>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="entry">Data Entry</div>
+      <div class="tab" data-tab="search">Search & Manage</div>
+      <div class="tab" data-tab="report">Reports & Backup</div>
+    </div>
+
+    <div id="entry" class="tab-content active">
+      <h2>Add / Edit File Record</h2>
+      <form id="fileForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fileNumber">File Number *</label>
+                <input type="text" id="fileNumber" required />
+                <div id="fileNumberError" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="volumeNumber">Volume Number *</label>
+                <input type="text" id="volumeNumber" required />
+                <div id="volumeNumberError" class="error"></div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="subject">Subject / Title *</label>
+            <textarea id="subject" rows="2" required></textarea>
+            <div id="subjectError" class="error"></div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="dateOpened">Date Opened *</label>
+                <input type="date" id="dateOpened" required />
+                <div id="dateOpenedError" class="error"></div>
+            </div>
+            <div class="form-group">
+                <label for="dateClosed">Date Closed</label>
+                <input type="date" id="dateClosed" />
+            </div>
+            <div class="form-group">
+                <label for="dateDestruction">Date of Destruction</label>
+                <input type="date" id="dateDestruction" />
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="storedLocation">Stored Location (N/A for Destroyed Files)</label>
+            <input type="text" id="storedLocation" />
+            <div id="storedLocationError" class="error"></div>
+        </div>
+        
+        <div class="button-row">
+            <button type="submit" id="saveBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Record
+            </button>
+            <button type="button" id="resetBtn" class="btn btn-secondary">
+                <i class="fas fa-undo"></i> Reset Form
+            </button>
+        </div>
+      </form>
+    </div>
+
+    <div id="search" class="tab-content">
+      <h2>Search File Records</h2>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by File No., Subject, or Location..." />
+      </div>
+      <div class="table-container">
+        <table id="recordsTable">
+          <thead>
+            <tr>
+              <th style="width: 5%;">Sl No.</th>
+              <th style="width: 20%;">File No.</th>
+              <th style="width: 5%;">Volume</th>
+              <th style="width: 40%;">Subject</th>
+              <th style="width: 10%;">Opened</th>
+              <th style="width: 10%;">Closed</th>
+              <th style="width: 10%;">Destruction</th>
+              <th class="no-print" style="width: 5%;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody">
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="report" class="tab-content">
+      <h2>File Status Reports</h2>
+      
+      <div class="filter-controls">
+        <button id="showCurrentBtn" class="btn btn-info">
+          <i class="fas fa-folder-open"></i> Show Current
+        </button>
+        <button id="showClosedBtn" class="btn btn-warning">
+          <i class="fas fa-folder"></i> Show Closed
+        </button>
+        <button id="showDestroyedBtn" class="btn btn-danger">
+          <i class="fas fa-trash"></i> Show Destroyed
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table id="reportTable">
+          <thead>
+            <tr>
+              <th style="width: 5%;">Sl No.</th>
+              <th style="width: 20%;">File No.</th>
+              <th style="width: 5%;">Volume</th>
+              <th style="width: 40%;">Subject</th>
+              <th style="width: 10%;">Opened</th>
+              <th style="width: 10%;">Closed</th>
+              <th style="width: 10%;">Destruction</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody">
+            </tbody>
+        </table>
+      </div>
+
+      <div class="utility-controls">
+        <button id="downloadSQLiteBtn" class="btn btn-success">
+          <i class="fas fa-database"></i> Export SQLite Database
+        </button>
+        <button id="uploadSQLiteBtn" class="btn btn-primary">
+          <i class="fas fa-file-import"></i> Import SQLite Database
+        </button>
+        <input type="file" accept=".sqlite,.db" id="sqliteUpload" style="display:none;"/>
+        <button id="printListBtn" class="btn btn-info">
+          <i class="fas fa-print"></i> Print Current List
+        </button>
+        <button id="deleteAllBtn" class="btn btn-danger">
+          <i class="fas fa-trash-alt"></i> Delete All Data
+        </button>
+      </div>
+
+    </div>
+    
+    <div id="print-section" style="display: none;">
+      <h2 id="print-header" style="text-align: center; margin-bottom: 20px;"></h2>
+      <table id="print-table">
+        <thead>
+          <tr>
+            <th style="width: 5%;">Sl No.</th>
+            <th style="width: 20%;">File No.</th>
+            <th style="width: 5%;">Volume</th>
+            <th style="width: 40%;">Subject</th>
+            <th style="width: 10%;">Opened</th>
+            <th style="width: 10%;">Closed</th>
+            <th style="width: 10%;">Destruction</th>
+          </tr>
+        </thead>
+        <tbody id="print-table-body">
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+  </div>
+
+  <script>
+    // Global state
+    let records = [];
+    let editRecordId = null;
+    let currentReportType = 'all'; 
+    let SQL = null; // SQL.js instance
+
+    // DOM Elements
+    const DOMElements = {
+        tabs: document.querySelectorAll('.tab'),
+        fileForm: document.getElementById('fileForm'),
+        searchTabContent: document.getElementById('search'), 
+        searchInput: document.getElementById('searchInput'),
+        recordsTableBody: document.getElementById('recordsTableBody'),
+        reportTableBody: document.getElementById('reportTableBody'),
+        printHeader: document.getElementById('print-header'),
+        printTableBody: document.getElementById('print-table-body'),
+        saveBtn: document.getElementById('saveBtn'),
+        resetBtn: document.getElementById('resetBtn'),
+        showCurrentBtn: document.getElementById('showCurrentBtn'),
+        showClosedBtn: document.getElementById('showClosedBtn'),
+        showDestroyedBtn: document.getElementById('showDestroyedBtn'),
+        printListBtn: document.getElementById('printListBtn'),
+        downloadSQLiteBtn: document.getElementById('downloadSQLiteBtn'),
+        uploadSQLiteBtn: document.getElementById('uploadSQLiteBtn'),
+        sqliteUpload: document.getElementById('sqliteUpload'),
+        deleteAllBtn: document.getElementById('deleteAllBtn'),
+    };
+
+    
+    // ====================================================================
+    // 1. Initialization and Data Handling
+    // ====================================================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecords();
+        setupEventListeners();
+        switchTab('entry'); 
+        initSQL(); // Initialize SQL.js
+    });
+    
+    function loadRecords() {
+        try {
+            const storedRecords = localStorage.getItem('fileRecords');
+            records = storedRecords ? JSON.parse(storedRecords) : [];
+        } catch (e) {
+            records = [];
+            showNotification('Error loading local data. Starting fresh.', true);
+        }
+    }
+    
+    function saveRecords() {
+        try {
+            localStorage.setItem('fileRecords', JSON.stringify(records));
+        } catch (e) {
+            showNotification('Error saving records to local storage.', true);
+        }
+    }
+
+    // ====================================================================
+    // 2. Event Listeners Setup
+    // ====================================================================
+
+    function setupEventListeners() {
+        DOMElements.tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
+        });
+        
+        DOMElements.fileForm.addEventListener('submit', handleFormSubmit);
+        DOMElements.resetBtn.addEventListener('click', resetForm);
+        DOMElements.searchInput.addEventListener('input', renderSearchResults);
+        
+        // Event Delegation for Modify/Delete buttons
+        DOMElements.searchTabContent.addEventListener('click', handleActionButtons);
+
+        // Report Filters
+        DOMElements.showCurrentBtn.addEventListener('click', () => filterAndRenderReport('current'));
+        DOMElements.showClosedBtn.addEventListener('click', () => filterAndRenderReport('closed'));
+        DOMElements.showDestroyedBtn.addEventListener('click', () => filterAndRenderReport('destroyed'));
+        DOMElements.printListBtn.addEventListener('click', () => printReport(currentReportType));
+
+        // SQLite Utility Buttons
+        DOMElements.downloadSQLiteBtn.addEventListener('click', exportSQLiteDatabase);
+        DOMElements.uploadSQLiteBtn.addEventListener('click', () => DOMElements.sqliteUpload.click());
+        DOMElements.sqliteUpload.addEventListener('change', handleSQLiteUpload);
+        
+        // Delete All Data Button
+        DOMElements.deleteAllBtn.addEventListener('click', deleteAllData);
+    }
+
+    function handleActionButtons(e) {
+        const targetButton = e.target.closest('button');
+        
+        if (!targetButton || !targetButton.dataset.id) return;
+
+        const id = targetButton.dataset.id;
+        
+        if (targetButton.classList.contains('modify-btn')) {
+            editRecord(id);
+        } else if (targetButton.classList.contains('delete-btn')) {
+            deleteRecord(id);
+        }
+    }
+
+    function switchTab(tabId) {
+        DOMElements.tabs.forEach(tab => tab.classList.remove('active'));
+        document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        if (tabId === 'search') {
+            renderSearchResults(); 
+        } else if (tabId === 'report') {
+            filterAndRenderReport(currentReportType);
+        }
+    }
+    
+    // ====================================================================
+    // 3. Form, Validation, and CRUD Operations
+    // ====================================================================
+    
+    function getFileStatus(record) {
+        // FINAL FIX: Checks if the string value is present (not null AND not empty string).
+        const isDestroyed = record.dateDestruction && record.dateDestruction.length > 0;
+        const isClosed = record.dateClosed && record.dateClosed.length > 0;
+        const isOpened = record.dateOpened && record.dateOpened.length > 0;
+
+        if (isDestroyed) return 'Destroyed';
+        if (isClosed) return 'Closed';
+        if (isOpened) return 'Current';
+        return 'Unknown';
+    }
+
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        clearAllErrors();
+        
+        const fileNumber = document.getElementById('fileNumber').value.trim();
+        const volumeNumber = document.getElementById('volumeNumber').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const dateOpened = document.getElementById('dateOpened').value;
+        const dateClosed = document.getElementById('dateClosed').value;
+        const dateDestruction = document.getElementById('dateDestruction').value;
+        let storedLocation = document.getElementById('storedLocation').value.trim();
+        
+        let isValid = true;
+        
+        // Validation
+        if (!fileNumber) { showError('fileNumber', 'Required'); isValid = false; }
+        if (!volumeNumber) { showError('volumeNumber', 'Required'); isValid = false; }
+        if (!subject) { showError('subject', 'Required'); isValid = false; }
+        if (!dateOpened) { showError('dateOpened', 'Required'); isValid = false; }
+        
+        if (dateDestruction && storedLocation && storedLocation !== 'N/A') {
+            showError('storedLocation', 'Location must be empty for destroyed files.');
+            isValid = false;
+        } else if (dateDestruction) {
+            storedLocation = 'N/A';
+        } else if (!dateDestruction && !storedLocation) {
+            showError('storedLocation', 'Location is required for current/closed files.');
+            isValid = false;
+        }
+
+        if (isDuplicateFileVolume(fileNumber, volumeNumber, editRecordId)) {
+            showError('fileNumber', 'File number and volume combination already exists.');
+            isValid = false;
+        }
+        
+        if (!isValid) return;
+        
+        const record = {
+            id: editRecordId || Date.now().toString(),
+            fileNumber,
+            volumeNumber,
+            subject,
+            dateOpened,
+            // Convert empty strings to null for consistency
+            dateClosed: dateClosed || null,
+            dateDestruction: dateDestruction || null,
+            storedLocation
+        };
+        
+        if (editRecordId) {
+            const index = records.findIndex(r => r.id === editRecordId);
+            if (index !== -1) records[index] = record;
+            showNotification('Record updated successfully!');
+        } else {
+            records.push(record);
+            showNotification('Record saved successfully!');
+        }
+        
+        saveRecords();
+        resetForm();
+    }
+    
+    function editRecord(id) {
+        const record = records.find(r => r.id === id);
+        if (!record) return;
+        
+        document.getElementById('fileNumber').value = record.fileNumber;
+        document.getElementById('volumeNumber').value = record.volumeNumber;
+        document.getElementById('subject').value = record.subject;
+        document.getElementById('dateOpened').value = record.dateOpened;
+        document.getElementById('dateClosed').value = record.dateClosed || '';
+        document.getElementById('dateDestruction').value = record.dateDestruction || '';
+        document.getElementById('storedLocation').value = record.storedLocation === 'N/A' ? '' : record.storedLocation;
+        
+        editRecordId = id;
+        DOMElements.saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Record';
+        switchTab('entry');
+    }
+    
+    function deleteRecord(id) {
+        if (!confirm('Are you sure you want to delete this record permanently?')) return;
+        
+        records = records.filter(record => record.id !== id);
+        saveRecords();
+        renderSearchResults();
+        filterAndRenderReport(currentReportType);
+        showNotification('Record deleted successfully!');
+    }
+    
+    function resetForm() {
+        DOMElements.fileForm.reset();
+        editRecordId = null;
+        clearAllErrors();
+        DOMElements.saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Record';
+    }
+
+    // ====================================================================
+    // 4. Search and Reporting Logic
+    // ====================================================================
+
+    function renderSearchResults() {
+        const searchTerm = DOMElements.searchInput.value.toLowerCase();
+        
+        let filteredRecords = records.filter(record => 
+            (record.fileNumber && record.fileNumber.toLowerCase().includes(searchTerm)) ||
+            (record.subject && record.subject.toLowerCase().includes(searchTerm)) ||
+            (record.storedLocation && record.storedLocation.toLowerCase().includes(searchTerm))
+        );
+        
+        DOMElements.recordsTableBody.innerHTML = '';
+        
+        if (filteredRecords.length === 0) {
+            DOMElements.recordsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No matching records found</td></tr>';
+            return;
+        }
+        
+        filteredRecords.forEach((record, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${record.fileNumber}</td>
+                <td>${record.volumeNumber}</td>
+                <td>${record.subject}</td>
+                <td>${formatDate(record.dateOpened)}</td>
+                <td>${formatDate(record.dateClosed)}</td>
+                <td>${formatDate(record.dateDestruction)}</td>
+                <td class="actions-cell no-print">
+                    <button class="modify-btn action-btn btn-warning" data-id="${record.id}" title="Modify">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="delete-btn action-btn btn-danger" data-id="${record.id}" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            DOMElements.recordsTableBody.appendChild(row);
+        });
+    }
+
+    function filterAndRenderReport(type) {
+        currentReportType = type;
+        
+        let filteredRecords;
+        let reportTitle;
+
+        // Default to showing all records if type is 'all' or undefined
+        if (type === 'all') {
+            filteredRecords = records;
+            reportTitle = 'All Records List';
+        } else if (type === 'current') {
+            filteredRecords = records.filter(r => getFileStatus(r) === 'Current');
+            reportTitle = 'Current Files List';
+        } else if (type === 'closed') {
+            filteredRecords = records.filter(r => getFileStatus(r) === 'Closed');
+            reportTitle = 'Closed Files List';
+        } else if (type === 'destroyed') {
+            filteredRecords = records.filter(r => getFileStatus(r) === 'Destroyed');
+            reportTitle = 'Destroyed Files List';
+        }
+
+        DOMElements.reportTableBody.innerHTML = '';
+        
+        DOMElements.printListBtn.textContent = `Print ${reportTitle}`;
+        
+        if (filteredRecords.length === 0) {
+            DOMElements.reportTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No ${reportTitle.toLowerCase()} available.</td></tr>`;
+            return;
+        }
+
+        filteredRecords.forEach((record, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${record.fileNumber}</td>
+                <td>${record.volumeNumber}</td>
+                <td>${record.subject}</td>
+                <td>${formatDate(record.dateOpened)}</td>
+                <td>${formatDate(record.dateClosed)}</td>
+                <td>${formatDate(record.dateDestruction)}</td>
+            `;
+            DOMElements.reportTableBody.appendChild(row);
+        });
+    }
+
+    function printReport(type) {
+        // Use the same filtering logic for the print output
+        let filteredRecords;
+        let reportTitle;
+        
+        if (type === 'all') {
+            filteredRecords = records;
+            reportTitle = 'All Records List';
+        } else if (type === 'current') {
+            filteredRecords = records.filter(r => getFileStatus(r) === 'Current');
+            reportTitle = 'Current Files List';
+        } else if (type === 'closed') {
+            filteredRecords = records.filter(r => getFileStatus(r) === 'Closed');
+            reportTitle = 'Closed Files List';
+        } else if (type === 'destroyed') {
+            filteredRecords = records.filter(r => getFileStatus(r) === 'Destroyed');
+            reportTitle = 'Destroyed Files List';
+        }
+
+        DOMElements.printHeader.textContent = reportTitle;
+        DOMElements.printTableBody.innerHTML = '';
+
+        filteredRecords.forEach((record, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${record.fileNumber}</td>
+                <td>${record.volumeNumber}</td>
+                <td>${record.subject}</td>
+                <td>${formatDate(record.dateOpened)}</td>
+                <td>${formatDate(record.dateClosed)}</td>
+                <td>${formatDate(record.dateDestruction)}</td>
+            `;
+            DOMElements.printTableBody.appendChild(row);
+        });
+
+        document.getElementById('print-section').style.display = 'block';
+        window.print();
+        document.getElementById('print-section').style.display = 'none';
+        
+        showNotification(`${reportTitle} sent to printer.`);
+    }
+
+    // ====================================================================
+    // 5. SQLite Database Functions
+    // ====================================================================
+
+    // Initialize SQL.js
+    function initSQL() {
+        if (typeof window.initSqlJs === 'function') {
+            window.initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            }).then(function(sql) {
+                SQL = sql;
+                console.log('SQL.js initialized successfully');
+            }).catch(function(err) {
+                console.error('Error initializing SQL.js:', err);
+                showNotification('Error initializing SQL database support.', true);
+            });
+        } else {
+            console.error('SQL.js not loaded properly');
+            showNotification('SQL database support not available.', true);
+        }
+    }
+
+    // Export records to SQLite database
+    function exportSQLiteDatabase() {
+        if (!SQL) {
+            showNotification('SQL database support not available.', true);
+            return;
+        }
+
+        try {
+            // Create a new database
+            const db = new SQL.Database();
+            
+            // Create table
+            db.run(`
+                CREATE TABLE file_records (
+                    id TEXT PRIMARY KEY,
+                    fileNumber TEXT NOT NULL,
+                    volumeNumber TEXT NOT NULL,
+                    subject TEXT NOT NULL,
+                    dateOpened TEXT NOT NULL,
+                    dateClosed TEXT,
+                    dateDestruction TEXT,
+                    storedLocation TEXT,
+                    status TEXT
+                )
+            `);
+            
+            // Insert records
+            const stmt = db.prepare(`
+                INSERT INTO file_records 
+                (id, fileNumber, volumeNumber, subject, dateOpened, dateClosed, dateDestruction, storedLocation, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `);
+            
+            records.forEach(record => {
+                stmt.run([
+                    record.id,
+                    record.fileNumber,
+                    record.volumeNumber,
+                    record.subject,
+                    record.dateOpened,
+                    record.dateClosed,
+                    record.dateDestruction,
+                    record.storedLocation,
+                    getFileStatus(record)
+                ]);
+            });
+            
+            stmt.free();
+            
+            // Export database to binary array
+            const data = db.export();
+            const blob = new Blob([data], { type: 'application/x-sqlite3' });
+            
+            // Create download link
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'file_records.sqlite';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('SQLite database exported successfully!');
+        } catch (error) {
+            console.error('Error exporting SQLite database:', error);
+            showNotification('Error exporting SQLite database.', true);
+        }
+    }
+
+    // Handle SQLite database upload
+    function handleSQLiteUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        if (!SQL) {
+            showNotification('SQL database support not available.', true);
+            DOMElements.sqliteUpload.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const uint8Array = new Uint8Array(e.target.result);
+                const db = new SQL.Database(uint8Array);
+                
+                // Query records from database
+                const result = db.exec("SELECT * FROM file_records");
+                
+                if (result.length === 0) {
+                    showNotification('No records found in the uploaded database.', true);
+                    DOMElements.sqliteUpload.value = "";
+                    return;
+                }
+                
+                const dbRecords = result[0].values.map(row => {
+                    const columns = result[0].columns;
+                    const record = {};
+                    columns.forEach((col, index) => {
+                        record[col] = row[index];
+                    });
+                    return record;
+                });
+                
+                // Convert to our record format
+                const newRecords = dbRecords.map(dbRecord => ({
+                    id: dbRecord.id,
+                    fileNumber: dbRecord.fileNumber,
+                    volumeNumber: dbRecord.volumeNumber,
+                    subject: dbRecord.subject,
+                    dateOpened: dbRecord.dateOpened,
+                    dateClosed: dbRecord.dateClosed,
+                    dateDestruction: dbRecord.dateDestruction,
+                    storedLocation: dbRecord.storedLocation
+                }));
+                
+                if (newRecords.length > 0) {
+                    if (records.length > 0) {
+                        if (!confirm(`This will REPLACE ${records.length} existing records with ${newRecords.length} records from the SQLite database. Continue?`)) {
+                            DOMElements.sqliteUpload.value = "";
+                            return;
+                        }
+                    }
+                    
+                    records = newRecords;
+                    saveRecords();
+                    showNotification('Records restored successfully from SQLite database! ✨');
+                    resetForm();
+                    renderSearchResults(); 
+                    filterAndRenderReport(currentReportType);
+                } else {
+                    showNotification('No valid records found in the database.', true);
+                }
+            } catch (error) {
+                console.error('Error parsing SQLite database:', error);
+                showNotification('Error parsing SQLite database: ' + error.message, true);
+            } finally {
+                DOMElements.sqliteUpload.value = "";
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // ====================================================================
+    // 6. Delete All Data Function
+    // ====================================================================
+
+    function deleteAllData() {
+        if (!confirm('Are you sure you want to delete ALL records? This action cannot be undone.')) {
+            return;
+        }
+        
+        if (!confirm('This will permanently delete all file records. Are you absolutely sure?')) {
+            return;
+        }
+        
+        records = [];
+        localStorage.removeItem('fileRecords');
+        showNotification('All records have been deleted.');
+        renderSearchResults();
+        filterAndRenderReport(currentReportType);
+    }
+
+    // ====================================================================
+    // 7. Helper Functions
+    // ====================================================================
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+    }
+
+    function showError(fieldId, message) {
+        const errorElement = document.getElementById(`${fieldId}Error`);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function clearAllErrors() {
+        const errorElements = document.querySelectorAll('.error');
+        errorElements.forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+
+    function isDuplicateFileVolume(fileNumber, volumeNumber, currentId) {
+        return records.some(record => 
+            record.id !== currentId && 
+            record.fileNumber === fileNumber && 
+            record.volumeNumber === volumeNumber
+        );
+    }
+
+    function showNotification(message, isError = false) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = 'notification' + (isError ? ' error' : '');
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+  </script>
+</body>
+</html>
